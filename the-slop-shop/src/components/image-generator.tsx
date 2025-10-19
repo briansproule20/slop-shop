@@ -34,6 +34,7 @@ import type {
   ModelConfig,
   ModelOption,
 } from '@/lib/types';
+import { getAllImages, saveImage } from '@/lib/image-db';
 import { ImageHistory } from './image-history';
 
 declare global {
@@ -104,7 +105,45 @@ async function editImage(request: EditImageRequest): Promise<ImageResponse> {
 export default function ImageGenerator() {
   const [model, setModel] = useState<ModelOption>('gemini');
   const [imageHistory, setImageHistory] = useState<GeneratedImage[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const promptInputRef = useRef<HTMLFormElement>(null);
+
+  // Load images from IndexedDB on mount
+  useEffect(() => {
+    async function loadImages() {
+      try {
+        const images = await getAllImages();
+        setImageHistory(images);
+        setIsLoaded(true);
+      } catch (error) {
+        console.error('Failed to load images from IndexedDB:', error);
+        setIsLoaded(true);
+      }
+    }
+
+    loadImages();
+  }, []);
+
+  // Save images to IndexedDB whenever they change
+  useEffect(() => {
+    // Don't save until we've loaded initial data to avoid overwriting
+    if (!isLoaded) return;
+
+    async function saveImages() {
+      try {
+        // Save each image that has completed (has imageUrl or error)
+        const savePromises = imageHistory
+          .filter(img => !img.isLoading)
+          .map(img => saveImage(img));
+
+        await Promise.all(savePromises);
+      } catch (error) {
+        console.error('Failed to save images to IndexedDB:', error);
+      }
+    }
+
+    saveImages();
+  }, [imageHistory, isLoaded]);
 
   // Handle adding files to the input from external triggers (like from image history)
   const handleAddToInput = useCallback((files: File[]) => {
