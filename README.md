@@ -1,2 +1,2 @@
 # slop-shop
-Nano Banana to Printify to Shopify slop Pipeline
+Nano Banana to Printify to Shopify slop pipeline
