@@ -14,6 +14,9 @@ export type ModelOption = 'openai' | 'gemini';
 export interface ModelConfig {
   id: ModelOption;
   name: string;
+  price?: string;
+  quality?: string;
+  speed?: string;
 }
 
 /**

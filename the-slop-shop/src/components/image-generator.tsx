@@ -51,8 +51,20 @@ declare global {
  * These models integrate with the Echo SDK to provide different image generation capabilities
  */
 const models: ModelConfig[] = [
-  { id: 'openai', name: 'GPT Image' },
-  { id: 'gemini', name: 'Gemini Flash Image' },
+  {
+    id: 'openai',
+    name: 'GPT Image',
+    price: '~30¢',
+    quality: 'High',
+    speed: 'Slow'
+  },
+  {
+    id: 'gemini',
+    name: 'Imagen (Nano Banana)',
+    price: '~5¢',
+    quality: 'Medium',
+    speed: 'Fast'
+  },
 ];
 
 /**
@@ -346,12 +358,23 @@ export default function ImageGenerator() {
               value={model}
             >
               <PromptInputModelSelectTrigger>
-                <PromptInputModelSelectValue />
+                <PromptInputModelSelectValue>
+                  {models.find(m => m.id === model)?.name}
+                </PromptInputModelSelectValue>
               </PromptInputModelSelectTrigger>
               <PromptInputModelSelectContent>
                 {models.map(model => (
                   <PromptInputModelSelectItem key={model.id} value={model.id}>
-                    {model.name}
+                    <div className="flex flex-col gap-1">
+                      <div className="font-medium">{model.name}</div>
+                      {(model.price || model.quality || model.speed) && (
+                        <div className="text-xs text-gray-500 flex gap-2">
+                          {model.price && <span>{model.price}</span>}
+                          {model.quality && <span>{model.quality}</span>}
+                          {model.speed && <span>{model.speed}</span>}
+                        </div>
+                      )}
+                    </div>
                   </PromptInputModelSelectItem>
                 ))}
               </PromptInputModelSelectContent>
