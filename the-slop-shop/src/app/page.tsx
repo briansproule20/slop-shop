@@ -45,7 +45,7 @@ export default async function Home() {
           <h1 className="text-2xl sm:text-3xl font-mono bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
             The Slop Shop
           </h1>
-          <p className="text-sm text-gray-600 font-mono">The Creation Portal</p>
+          <p className="text-sm text-gray-600 font-mono">Creation Portal</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Echo token display widget */}
