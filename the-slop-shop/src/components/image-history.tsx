@@ -9,7 +9,7 @@ import {
   isImageActionable,
 } from '@/lib/image-actions';
 import type { GeneratedImage } from '@/lib/types';
-import { Copy, Download, Edit } from 'lucide-react';
+import { Copy, Download, Edit, ShoppingBag } from 'lucide-react';
 import NextImage from 'next/image';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ImageDetailsDialog } from './image-details-dialog';
@@ -43,12 +43,14 @@ interface ImageHistoryItemProps {
   image: GeneratedImage;
   onAddToInput: (files: File[]) => void;
   onImageClick: (image: GeneratedImage) => void;
+  onPublish: (image: GeneratedImage) => void;
 }
 
 const ImageHistoryItem = React.memo(function ImageHistoryItem({
   image,
   onAddToInput,
   onImageClick,
+  onPublish,
 }: ImageHistoryItemProps) {
   const handleAddToInput = useCallback(() => {
     if (!isImageActionable(image)) return;
@@ -71,6 +73,11 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
     if (!isImageActionable(image)) return;
     await handleImageCopy(image.imageUrl!);
   }, [image]);
+
+  const handlePublish = useCallback(() => {
+    if (!isImageActionable(image)) return;
+    onPublish(image);
+  }, [image, onPublish]);
 
   return (
     <div
@@ -145,6 +152,19 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
             >
               <Edit size={14} />
             </Button>
+            <Button
+              size="sm"
+              onClick={e => {
+                e.stopPropagation();
+                handlePublish();
+              }}
+              aria-label="Publish to store"
+              title="Publish to store"
+              className="h-8 w-8 p-0 bg-white/90 hover:bg-white shadow-lg text-gray-700 hover:text-gray-900 cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-150 focus:ring-2 focus:ring-blue-500"
+              disabled={!isImageActionable(image)}
+            >
+              <ShoppingBag size={14} />
+            </Button>
           </div>
         </>
       ) : (
@@ -159,11 +179,13 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
 interface ImageHistoryProps {
   imageHistory: GeneratedImage[];
   onAddToInput: (files: File[]) => void;
+  onPublish: (image: GeneratedImage) => void;
 }
 
 export const ImageHistory = React.memo(function ImageHistory({
   imageHistory,
   onAddToInput,
+  onPublish,
 }: ImageHistoryProps) {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(
     null
@@ -190,6 +212,7 @@ export const ImageHistory = React.memo(function ImageHistory({
             image={image}
             onAddToInput={onAddToInput}
             onImageClick={handleImageClick}
+            onPublish={onPublish}
           />
         ))}
       </div>

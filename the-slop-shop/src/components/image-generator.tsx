@@ -36,6 +36,9 @@ import type {
 } from '@/lib/types';
 import { getAllImages, saveImage } from '@/lib/image-db';
 import { ImageHistory } from './image-history';
+import { ProductSelectorDialog } from './product-selector-dialog';
+import type { PrintifyBlueprint } from '@/lib/printify-types';
+import { useRouter } from 'next/navigation';
 
 declare global {
   interface Window {
@@ -115,9 +118,11 @@ async function editImage(request: EditImageRequest): Promise<ImageResponse> {
  * - Provides seamless model switching between OpenAI and Gemini
  */
 export default function ImageGenerator() {
+  const router = useRouter();
   const [model, setModel] = useState<ModelOption>('gemini');
   const [imageHistory, setImageHistory] = useState<GeneratedImage[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [imageToPublish, setImageToPublish] = useState<GeneratedImage | null>(null);
   const promptInputRef = useRef<HTMLFormElement>(null);
 
   // Load images from IndexedDB on mount
@@ -171,6 +176,39 @@ export default function ImageGenerator() {
     if (actions) {
       actions.clear();
     }
+  }, []);
+
+  const handlePublishClick = useCallback((image: GeneratedImage) => {
+    setImageToPublish(image);
+  }, []);
+
+  const handleProductSelect = useCallback((image: GeneratedImage, blueprint: PrintifyBlueprint) => {
+    // Create a minimal data structure to pass via URL
+    try {
+      const minimalData = {
+        imageId: image.id,
+        imageUrl: image.imageUrl,
+        prompt: image.prompt,
+        blueprintId: blueprint.id,
+        blueprintTitle: blueprint.title,
+        blueprintBrand: blueprint.brand,
+        blueprintModel: blueprint.model,
+        blueprintImages: blueprint.images?.[0] ? [blueprint.images[0]] : [],
+        blueprintDescription: blueprint.description,
+      };
+
+      // Store in sessionStorage as backup
+      sessionStorage.setItem('previewData', JSON.stringify(minimalData));
+
+      // Also navigate with a flag
+      router.push('/preview?ready=1');
+    } catch (error) {
+      console.error('Failed to store preview data:', error);
+    }
+  }, [router]);
+
+  const handleCloseProductSelector = useCallback(() => {
+    setImageToPublish(null);
   }, []);
 
   // Component to bridge PromptInput context with external file operations
@@ -398,6 +436,13 @@ export default function ImageGenerator() {
       <ImageHistory
         imageHistory={imageHistory}
         onAddToInput={handleAddToInput}
+        onPublish={handlePublishClick}
+      />
+
+      <ProductSelectorDialog
+        image={imageToPublish}
+        onClose={handleCloseProductSelector}
+        onSelectProduct={handleProductSelect}
       />
     </div>
   );
