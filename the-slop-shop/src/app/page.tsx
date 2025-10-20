@@ -24,6 +24,7 @@ import ImageGenerator from '@/components/image-generator';
 
 import { EchoSignIn } from '@merit-systems/echo-next-sdk/client';
 import { EchoAccount } from '@/components/echo-account-next';
+import { Button } from '@/components/echo-button';
 import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
@@ -41,7 +42,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col h-screen p-2 sm:p-4 max-w-6xl mx-auto">
       {/* Header with title and token display */}
-      <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full mb-4 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-slate-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm gap-3 sm:gap-0">
+      <header className="flex justify-between items-center w-full mb-4 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-slate-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm">
         <div className="flex flex-col">
           <h1 className="text-2xl sm:text-3xl font-mono bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
             The Slop Shop
@@ -55,11 +56,10 @@ export default async function Home() {
             href="https://slopshop-app.myshopify.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm transition-colors"
             aria-label="Visit shop"
+            className="text-gray-700 hover:text-gray-900 transition-colors"
           >
-            <ShoppingBag size={20} className="text-gray-700" />
-            <span className="hidden sm:inline text-sm font-medium text-gray-700">Shop</span>
+            <ShoppingBag className="size-6" />
           </Link>
           <EchoAccount />
         </div>

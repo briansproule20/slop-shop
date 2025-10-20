@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   handleImageCopy,
-  handleImageDownload,
-  handleImageToFile,
   isImageActionable,
 } from '@/lib/image-actions';
 import type { GeneratedImage } from '@/lib/types';
@@ -41,17 +39,13 @@ const LoadingTimer = React.memo(function LoadingTimer({
 
 interface ImageHistoryItemProps {
   image: GeneratedImage;
-  onAddToInput: (files: File[]) => void;
   onImageClick: (image: GeneratedImage) => void;
-  onPublish: (image: GeneratedImage) => void;
   onDelete: (image: GeneratedImage) => void;
 }
 
 const ImageHistoryItem = React.memo(function ImageHistoryItem({
   image,
-  onAddToInput,
   onImageClick,
-  onPublish,
   onDelete,
 }: ImageHistoryItemProps) {
   const handleImageClick = useCallback(() => {
@@ -171,9 +165,7 @@ export const ImageHistory = React.memo(function ImageHistory({
           <ImageHistoryItem
             key={image.id}
             image={image}
-            onAddToInput={onAddToInput}
             onImageClick={handleImageClick}
-            onPublish={onPublish}
             onDelete={onDelete}
           />
         ))}
