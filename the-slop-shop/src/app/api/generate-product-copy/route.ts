@@ -47,7 +47,6 @@ You must respond with valid JSON only, in this exact format:
         },
       ],
       temperature: 0.8,
-      max_tokens: 300,
     });
 
     // Parse the JSON response from the AI
