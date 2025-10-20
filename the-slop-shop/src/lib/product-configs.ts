@@ -12,6 +12,7 @@ interface ProductConfig {
   scale: number;
   x: number;
   y: number;
+  tags: string[]; // Auto-categorization tags for Shopify
 }
 
 export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
@@ -26,6 +27,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     variants: [
       67624, // 11oz variant
     ],
+    tags: ['Drinkware', 'Mugs', 'Coffee', 'Kitchen'],
   },
 };
 

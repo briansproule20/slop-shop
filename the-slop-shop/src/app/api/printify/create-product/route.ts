@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       printProviderId,
       title,
       description,
+      tags = [],
       variants,
       printAreas,
       publishToShopify = true,
@@ -24,6 +25,7 @@ export async function POST(request: NextRequest) {
       printProviderId,
       title,
       description,
+      tags,
       variants,
       printAreas,
       imageUrl: imageUrl?.substring(0, 100) + '...',
@@ -45,6 +47,7 @@ export async function POST(request: NextRequest) {
     const productData = {
       title,
       description,
+      tags,
       blueprint_id: blueprintId,
       print_provider_id: printProviderId,
       variants,

@@ -143,6 +143,7 @@ export default function ProductPreviewPage() {
           printProviderId: config.print_provider_id,
           title,
           description,
+          tags: config.tags,
           variants: config.variants.map(variantId => ({
             id: variantId,
             price: config.price,
