@@ -21,7 +21,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     blueprint_id: 503,
     print_provider_id: 48, // Colorway (only available provider for this blueprint)
     price: 1499, // $14.99
-    scale: 1.0,
+    scale: 0.8, // 80% of print area - shows more of the image
     x: 0.5,
     y: 0.5,
     variants: [
