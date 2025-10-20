@@ -24,6 +24,8 @@ import ImageGenerator from '@/components/image-generator';
 
 import { EchoSignIn } from '@merit-systems/echo-next-sdk/client';
 import { EchoAccount } from '@/components/echo-account-next';
+import { ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * Main application page
@@ -49,6 +51,16 @@ export default async function Home() {
         <div className="flex items-center gap-3">
           {/* Echo token display widget */}
           {/* {_isSignedIn && <EchoWidget />} */}
+          <Link
+            href="https://slopshop-app.myshopify.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm transition-colors"
+            aria-label="Visit shop"
+          >
+            <ShoppingBag size={20} className="text-gray-700" />
+            <span className="hidden sm:inline text-sm font-medium text-gray-700">Shop</span>
+          </Link>
           <EchoAccount />
         </div>
       </header>
