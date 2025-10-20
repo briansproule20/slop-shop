@@ -9,7 +9,6 @@ import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
 import { ArrowLeft, Check, Loader2, Wand2 } from 'lucide-react';
-import NextImage from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -114,7 +113,7 @@ export default function ProductPreviewPage() {
       const data = await response.json();
       setTitle(data.title);
       setDescription(data.description);
-    } catch (err) {
+    } catch {
       // Fallback to witty manual copy
       const cleanPrompt = prompt.charAt(0).toUpperCase() + prompt.slice(1);
       setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
