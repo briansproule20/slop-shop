@@ -8,7 +8,7 @@ interface ProductConfig {
   blueprint_id: number;
   print_provider_id: number;
   variants: number[];
-  price: number; // in cents
+  price: number; // Printify expects price in cents (e.g., 1499 = $14.99)
   scale: number;
   x: number;
   y: number;
