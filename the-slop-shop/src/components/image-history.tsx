@@ -135,45 +135,6 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
             </Button>
             <Button
               size="sm"
-              onClick={e => {
-                e.stopPropagation();
-                handleDownload();
-              }}
-              aria-label="Download image"
-              title="Download image"
-              className="h-8 w-8 p-0 bg-white/90 hover:bg-white shadow-lg text-gray-700 hover:text-gray-900 cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-150 focus:ring-2 focus:ring-blue-500"
-              disabled={!isImageActionable(image)}
-            >
-              <Download size={14} />
-            </Button>
-            <Button
-              size="sm"
-              onClick={e => {
-                e.stopPropagation();
-                handleAddToInput();
-              }}
-              aria-label="Edit this image"
-              title="Edit image"
-              className="h-8 w-8 p-0 bg-white/90 hover:bg-white shadow-lg text-gray-700 hover:text-gray-900 cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-150 focus:ring-2 focus:ring-blue-500"
-              disabled={!isImageActionable(image)}
-            >
-              <Edit size={14} />
-            </Button>
-            <Button
-              size="sm"
-              onClick={e => {
-                e.stopPropagation();
-                handlePublish();
-              }}
-              aria-label="Publish to store"
-              title="Publish to store"
-              className="h-8 w-8 p-0 bg-white/90 hover:bg-white shadow-lg text-gray-700 hover:text-gray-900 cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-150 focus:ring-2 focus:ring-blue-500"
-              disabled={!isImageActionable(image)}
-            >
-              <ShoppingBag size={14} />
-            </Button>
-            <Button
-              size="sm"
               onClick={handleDelete}
               aria-label="Delete image"
               title="Delete image"

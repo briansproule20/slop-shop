@@ -149,52 +149,59 @@ export function ImageDetailsDialog({
           </div>
 
           {/* Action buttons */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
-            <Button
-              onClick={handleCopy}
-              disabled={!isImageActionable(image)}
-              className="flex items-center gap-2 justify-center"
-              aria-label="Copy image to clipboard"
-            >
-              <Copy size={16} />
-              Copy
-            </Button>
-            <Button
-              onClick={handleDownload}
-              disabled={!isImageActionable(image)}
-              className="flex items-center gap-2 justify-center"
-              aria-label="Download image"
-            >
-              <Download size={16} />
-              Download
-            </Button>
-            <Button
-              onClick={handleAddToInput}
-              disabled={!isImageActionable(image)}
-              className="flex items-center gap-2 justify-center"
-              aria-label="Edit this image"
-            >
-              <Edit size={16} />
-              Edit
-            </Button>
-            <Button
-              onClick={handlePublishToShopify}
-              disabled={!isImageActionable(image)}
-              className="flex items-center gap-2 justify-center bg-green-600 hover:bg-green-700"
-              aria-label="Publish to Shopify"
-            >
-              <ShoppingBag size={16} />
-              Publish
-            </Button>
-            <Button
-              onClick={handleDelete}
-              variant="outline"
-              className="flex items-center gap-2 justify-center border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-400 col-span-2 sm:col-span-1"
-              aria-label="Delete image"
-            >
-              <Trash2 size={16} />
-              Delete
-            </Button>
+          <div className="space-y-2 pt-2">
+            {/* First row: Copy, Download, Edit */}
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                onClick={handleCopy}
+                disabled={!isImageActionable(image)}
+                className="flex items-center gap-2 justify-center"
+                aria-label="Copy image to clipboard"
+              >
+                <Copy size={16} />
+                Copy
+              </Button>
+              <Button
+                onClick={handleDownload}
+                disabled={!isImageActionable(image)}
+                className="flex items-center gap-2 justify-center"
+                aria-label="Download image"
+              >
+                <Download size={16} />
+                Download
+              </Button>
+              <Button
+                onClick={handleAddToInput}
+                disabled={!isImageActionable(image)}
+                className="flex items-center gap-2 justify-center"
+                aria-label="Edit this image"
+              >
+                <Edit size={16} />
+                Edit
+              </Button>
+            </div>
+
+            {/* Second row: Publish, Delete */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={handlePublishToShopify}
+                disabled={!isImageActionable(image)}
+                className="flex items-center gap-2 justify-center bg-green-600 hover:bg-green-700"
+                aria-label="Publish to Shopify"
+              >
+                <ShoppingBag size={16} />
+                Publish
+              </Button>
+              <Button
+                onClick={handleDelete}
+                variant="outline"
+                className="flex items-center gap-2 justify-center border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-400"
+                aria-label="Delete image"
+              >
+                <Trash2 size={16} />
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
