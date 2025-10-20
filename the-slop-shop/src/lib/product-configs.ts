@@ -19,7 +19,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     name: 'White Ceramic Mug, 11oz',
     blueprint_id: 503,
     print_provider_id: 48, // Colorway (only available provider for this blueprint)
-    price: 1999, // $19.99
+    price: 1499, // $14.99
     scale: 1.0,
     x: 0.5,
     y: 0.5,
