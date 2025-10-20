@@ -22,14 +22,24 @@ export async function POST(request: NextRequest) {
     console.log('📦 Creating Printify product with config:', {
       blueprintId,
       printProviderId,
+      title,
+      description,
       variants,
       printAreas,
+      imageUrl: imageUrl?.substring(0, 100) + '...',
+      fileName,
     });
 
     // Upload image to Printify first
     console.log('📤 Uploading image to Printify...');
-    const uploadedImage = await uploadImageToPrintify(imageUrl, fileName);
-    console.log('✅ Image uploaded, ID:', uploadedImage.id);
+    let uploadedImage;
+    try {
+      uploadedImage = await uploadImageToPrintify(imageUrl, fileName);
+      console.log('✅ Image uploaded, ID:', uploadedImage.id);
+    } catch (uploadError) {
+      console.error('❌ Image upload failed:', uploadError);
+      throw uploadError;
+    }
 
     // Create product with the uploaded image
     const productData = {
@@ -70,9 +80,19 @@ export async function POST(request: NextRequest) {
       published: publishToShopify,
     });
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error('❌ Error creating product:', error);
+
+    // Log the full error details for debugging
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to create product' },
+      {
+        error: error instanceof Error ? error.message : 'Failed to create product',
+        details: error instanceof Error ? error.stack : String(error)
+      },
       { status: 500 }
     );
   }

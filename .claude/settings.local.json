@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node -e \"\nconst token = require(''fs'').readFileSync(''.env.local'', ''utf8'').match(/PRINTIFY_API_TOKEN=(.*)/)[1];\nfetch(''https://api.printify.com/v1/catalog/blueprints/503/print_providers/48/variants.json'', {\n  headers: { ''Authorization'': ''Bearer '' + token }\n})\n.then(r => r.json())\n.then(d => {\n  console.log(''Available variants for Colorway provider:'');\n  d.variants.forEach(v => console.log(''  ID:'', v.id, ''- Title:'', v.title, ''- Options:'', JSON.stringify(v.options)));\n})\n.catch(e => console.error(e.message));\n\")"
+      "Bash(cd /Users/briansproule/Coding Projects/slop-shop/the-slop-shop)",
+      "Bash(cat -A .env.local)"
     ],
     "deny": [],
     "ask": []

@@ -17,6 +17,13 @@ const PRINTIFY_API_BASE = 'https://api.printify.com/v1';
  */
 function getHeaders(): HeadersInit {
   const token = process.env.PRINTIFY_API_TOKEN;
+
+  console.log('🔑 Checking API token:', {
+    exists: !!token,
+    length: token?.length,
+    prefix: token?.substring(0, 20) + '...'
+  });
+
   if (!token) {
     throw new Error('PRINTIFY_API_TOKEN is not configured');
   }
@@ -24,6 +31,7 @@ function getHeaders(): HeadersInit {
   return {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
+    'User-Agent': 'Slop-Shop/1.0',
   };
 }
 
@@ -32,6 +40,12 @@ function getHeaders(): HeadersInit {
  */
 function getShopId(): string {
   const shopId = process.env.PRINTIFY_SHOP_ID;
+
+  console.log('🏪 Checking shop ID:', {
+    exists: !!shopId,
+    value: shopId
+  });
+
   if (!shopId) {
     throw new Error('PRINTIFY_SHOP_ID is not configured');
   }
@@ -46,6 +60,8 @@ export async function uploadImageToPrintify(
   imageUrl: string,
   fileName: string
 ): Promise<PrintifyImage> {
+  console.log('🔍 Uploading image:', { fileName, urlType: imageUrl.startsWith('data:') ? 'base64' : 'url' });
+
   // If it's a base64 data URL, we need to upload via file contents
   if (imageUrl.startsWith('data:')) {
     // Convert base64 to binary
@@ -63,14 +79,26 @@ export async function uploadImageToPrintify(
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Failed to upload image to Printify: ${error}`);
+      const errorText = await response.text();
+      console.error('❌ Image upload error (base64):', errorText);
+      console.error('❌ Status:', response.status, response.statusText);
+
+      let errorMessage = `Failed to upload image (${response.status})`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = `Failed to upload image: ${JSON.stringify(errorJson)}`;
+      } catch {
+        errorMessage = `Failed to upload image: ${errorText || response.statusText}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     return response.json();
   }
 
   // Regular URL upload
+  console.log('📤 Uploading image from URL:', imageUrl);
   const response = await fetch(`${PRINTIFY_API_BASE}/uploads/images.json`, {
     method: 'POST',
     headers: getHeaders(),
@@ -81,8 +109,19 @@ export async function uploadImageToPrintify(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to upload image to Printify: ${error}`);
+    const errorText = await response.text();
+    console.error('❌ Image upload error (URL):', errorText);
+    console.error('❌ Status:', response.status, response.statusText);
+
+    let errorMessage = `Failed to upload image (${response.status})`;
+    try {
+      const errorJson = JSON.parse(errorText);
+      errorMessage = `Failed to upload image: ${JSON.stringify(errorJson)}`;
+    } catch {
+      errorMessage = `Failed to upload image: ${errorText || response.statusText}`;
+    }
+
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -154,6 +193,9 @@ export async function createProduct(
 ): Promise<PrintifyProduct> {
   const shopId = getShopId();
 
+  console.log('🔍 Creating product in shop:', shopId);
+  console.log('📋 Product data:', JSON.stringify(productData, null, 2));
+
   const response = await fetch(
     `${PRINTIFY_API_BASE}/shops/${shopId}/products.json`,
     {
@@ -164,8 +206,19 @@ export async function createProduct(
   );
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to create product: ${error}`);
+    const errorText = await response.text();
+    console.error('❌ Printify API error response:', errorText);
+    console.error('❌ Status:', response.status, response.statusText);
+
+    let errorMessage = `Failed to create product (${response.status})`;
+    try {
+      const errorJson = JSON.parse(errorText);
+      errorMessage = `Failed to create product: ${JSON.stringify(errorJson)}`;
+    } catch {
+      errorMessage = `Failed to create product: ${errorText || response.statusText}`;
+    }
+
+    throw new Error(errorMessage);
   }
 
   return response.json();
