@@ -16,20 +16,25 @@ import {
   isImageActionable,
 } from '@/lib/image-actions';
 import type { GeneratedImage, ImageActionHandlers } from '@/lib/types';
-import { Copy, Download, Edit } from 'lucide-react';
+import { Copy, Download, Edit, ShoppingBag, Trash2 } from 'lucide-react';
 import NextImage from 'next/image';
 import { useCallback } from 'react';
 
 interface ImageDetailsDialogProps extends ImageActionHandlers {
   image: GeneratedImage | null;
   onClose: () => void;
+  onPublish?: (image: GeneratedImage) => void;
+  onDelete?: (image: GeneratedImage) => void;
 }
 
 export function ImageDetailsDialog({
   image,
   onClose,
   onAddToInput,
+  onPublish,
+  onDelete,
 }: ImageDetailsDialogProps) {
+
   const handleAddToInput = useCallback(() => {
     if (!image || !isImageActionable(image)) return;
 
@@ -48,6 +53,21 @@ export function ImageDetailsDialog({
     if (!image || !isImageActionable(image)) return;
     await handleImageCopy(image.imageUrl!);
   }, [image]);
+
+  const handlePublishToShopify = useCallback(() => {
+    if (!image || !isImageActionable(image)) return;
+
+    // Close this dialog and open product selector
+    onClose();
+    onPublish?.(image);
+  }, [image, onClose, onPublish]);
+
+  const handleDelete = useCallback(() => {
+    if (!image) return;
+
+    onDelete?.(image);
+    onClose();
+  }, [image, onDelete, onClose]);
 
   if (!image) return null;
 
@@ -129,7 +149,7 @@ export function ImageDetailsDialog({
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
             <Button
               onClick={handleCopy}
               disabled={!isImageActionable(image)}
@@ -156,6 +176,24 @@ export function ImageDetailsDialog({
             >
               <Edit size={16} />
               Edit
+            </Button>
+            <Button
+              onClick={handlePublishToShopify}
+              disabled={!isImageActionable(image)}
+              className="flex items-center gap-2 justify-center bg-green-600 hover:bg-green-700"
+              aria-label="Publish to Shopify"
+            >
+              <ShoppingBag size={16} />
+              Publish
+            </Button>
+            <Button
+              onClick={handleDelete}
+              variant="outline"
+              className="flex items-center gap-2 justify-center border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-400 col-span-2 sm:col-span-1"
+              aria-label="Delete image"
+            >
+              <Trash2 size={16} />
+              Delete
             </Button>
           </div>
         </div>

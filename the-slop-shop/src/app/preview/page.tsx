@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { MugMockup } from '@/components/mug-mockup';
+import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
-import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Check, Loader2, Wand2 } from 'lucide-react';
 import NextImage from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function ProductPreviewPage() {
   const router = useRouter();
@@ -21,8 +23,16 @@ export default function ProductPreviewPage() {
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generatingCopy, setGeneratingCopy] = useState(false);
+  const hasLoadedData = useRef(false);
 
   useEffect(() => {
+    // Prevent loading data multiple times (React strict mode double-mount)
+    if (hasLoadedData.current) {
+      console.log('Data already loaded, skipping...');
+      return;
+    }
+
     console.log('Preview page mounted, checking for data...');
 
     // Try to get data from sessionStorage
@@ -63,12 +73,11 @@ export default function ProductPreviewPage() {
 
         setImage(reconstructedImage);
         setBlueprint(reconstructedBlueprint);
+        setError(null); // Clear any errors
+        hasLoadedData.current = true; // Mark as loaded
 
-        // Set default title and description
-        setTitle(
-          `Custom ${reconstructedBlueprint.title} - ${reconstructedImage.prompt.slice(0, 50)}`
-        );
-        setDescription(reconstructedImage.prompt);
+        // Generate AI-powered title and description
+        generateProductCopy(reconstructedImage.prompt, reconstructedBlueprint.title);
 
         // Clear sessionStorage after loading
         sessionStorage.removeItem('previewData');
@@ -77,10 +86,43 @@ export default function ProductPreviewPage() {
         setError('Invalid product data');
       }
     } else {
-      console.error('No data found in sessionStorage');
-      setError('No product data found. Please go back and select a product again.');
+      // Only show error if we haven't already loaded data
+      // This prevents showing error on hot reload or strict mode double-mount
+      if (!hasLoadedData.current) {
+        console.log('No data found in sessionStorage - showing error to user');
+        setError('No product data found. Please go back and select a product again.');
+      } else {
+        console.log('No data in sessionStorage, but data already loaded - skipping error');
+      }
     }
   }, []);
+
+  const generateProductCopy = async (prompt: string, productType: string) => {
+    setGeneratingCopy(true);
+    try {
+      const response = await fetch('/api/generate-product-copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, productType }),
+      });
+
+      if (!response.ok) {
+        console.log('AI generation failed, using fallback copy');
+        throw new Error('Failed to generate product copy');
+      }
+
+      const data = await response.json();
+      setTitle(data.title);
+      setDescription(data.description);
+    } catch (err) {
+      // Fallback to witty manual copy
+      const cleanPrompt = prompt.charAt(0).toUpperCase() + prompt.slice(1);
+      setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
+      setDescription(`Your morning coffee deserves this. ${cleanPrompt}. 11oz ceramic mug, dishwasher safe, microwave safe. Because why not?`);
+    } finally {
+      setGeneratingCopy(false);
+    }
+  };
 
   const handlePublish = async () => {
     if (!image || !blueprint) return;
@@ -89,29 +131,33 @@ export default function ProductPreviewPage() {
     setError(null);
 
     try {
+      // Get product configuration
+      const config = getProductConfig('ceramicMug');
+
       const response = await fetch('/api/printify/create-product', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           imageUrl: image.imageUrl,
           fileName: `${image.id}.png`,
-          blueprintId: blueprint.id,
-          printProviderId: 1, // Default provider - should be selected based on blueprint
+          blueprintId: config.blueprint_id,
+          printProviderId: config.print_provider_id,
           title,
           description,
-          variants: [
-            {
-              id: 1, // Default variant
-              price: 2999, // $29.99 in cents
-              is_enabled: true,
-            },
-          ],
+          variants: config.variants.map(variantId => ({
+            id: variantId,
+            price: config.price,
+            is_enabled: true,
+          })),
           printAreas: [
             {
-              variant_ids: [1],
+              variant_ids: config.variants,
               placeholders: [
                 {
                   position: 'front',
+                  x: config.x,
+                  y: config.y,
+                  scale: config.scale,
                 },
               ],
             },
@@ -192,36 +238,12 @@ export default function ProductPreviewPage() {
                 </div>
               </div>
 
-              {/* Product Mockup with Design Overlay */}
-              <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 mb-6">
-                <div className="relative aspect-square max-w-md mx-auto">
-                  {/* Background product image if available */}
-                  {blueprint.images && blueprint.images[0] && (
-                    <div className="absolute inset-0">
-                      <NextImage
-                        src={blueprint.images[0]}
-                        alt={blueprint.title}
-                        fill
-                        className="object-contain opacity-90"
-                      />
-                    </div>
-                  )}
-
-                  {/* Design overlay - positioned on the product with proper sizing */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative w-[35%] h-[35%] drop-shadow-2xl">
-                      {image.imageUrl && (
-                        <NextImage
-                          src={image.imageUrl}
-                          alt="Your design"
-                          fill
-                          className="object-contain"
-                          priority
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
+              {/* Product Mockup with Design */}
+              <div className="mb-6">
+                <MugMockup
+                  imageUrl={image.imageUrl!}
+                  imageAlt="Your design on mug"
+                />
               </div>
 
               {/* Product Info */}
@@ -249,19 +271,40 @@ export default function ProductPreviewPage() {
               </h2>
 
               <div className="space-y-4">
+                {generatingCopy && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>AI is writing your product copy...</span>
+                  </div>
+                )}
+
                 <div>
-                  <label
-                    htmlFor="title"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Product Title
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Product Title
+                    </label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => generateProductCopy(image!.prompt, blueprint!.title)}
+                      disabled={generatingCopy || !image || !blueprint}
+                      className="h-7 text-xs"
+                    >
+                      <Wand2 size={12} className="mr-1" />
+                      Regenerate
+                    </Button>
+                  </div>
                   <Input
                     id="title"
                     value={title}
                     onChange={e => setTitle(e.target.value)}
                     placeholder="Enter product title"
                     className="w-full"
+                    disabled={generatingCopy}
                   />
                 </div>
 
@@ -279,6 +322,7 @@ export default function ProductPreviewPage() {
                     placeholder="Enter product description"
                     rows={4}
                     className="w-full"
+                    disabled={generatingCopy}
                   />
                 </div>
 

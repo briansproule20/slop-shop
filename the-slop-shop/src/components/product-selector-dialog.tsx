@@ -25,41 +25,13 @@ interface ProductSelectorDialogProps {
 const POPULAR_BLUEPRINT_IDS = [
   // Mugs
   503, // White Ceramic Mug, 11oz
-  483, // Enamel Camping Mug
-  70, // Stainless Steel Travel Mug
-
-  // Tumblers & Bottles
-  353, // Tumbler 20oz
-  482, // 20oz Insulated Bottle
-  854, // Stainless Steel Water Bottle, Handle Lid
-
-  // Home & Art
-  282, // Matte Vertical Posters
-  492, // Vertical Framed Poster
-
-  // Bags & Apparel
-  467, // Tote Bag
-  145, // Unisex Softstyle T-Shirt
-  77, // Unisex Heavy Blend™ Hooded Sweatshirt
 ];
 
 // Category definitions for better organization
 const PRODUCT_CATEGORIES = {
   drinkware: {
     title: '☕ Mugs',
-    ids: [503, 483, 70],
-  },
-  bottles: {
-    title: '🥤 Tumblers & Bottles',
-    ids: [353, 482, 854],
-  },
-  homeArt: {
-    title: '🖼️ Prints & Posters',
-    ids: [282, 492],
-  },
-  apparel: {
-    title: '👕 Apparel & Bags',
-    ids: [467, 145, 77],
+    ids: [503],
   },
 };
 

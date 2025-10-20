@@ -34,7 +34,7 @@ import type {
   ModelConfig,
   ModelOption,
 } from '@/lib/types';
-import { getAllImages, saveImage } from '@/lib/image-db';
+import { getAllImages, saveImage, deleteImage } from '@/lib/image-db';
 import { ImageHistory } from './image-history';
 import { ProductSelectorDialog } from './product-selector-dialog';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
@@ -182,9 +182,27 @@ export default function ImageGenerator() {
     setImageToPublish(image);
   }, []);
 
+  const handleDeleteImage = useCallback(async (image: GeneratedImage) => {
+    try {
+      // Delete from IndexedDB
+      await deleteImage(image.id);
+
+      // Remove from state
+      setImageHistory(prev => prev.filter(img => img.id !== image.id));
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+    }
+  }, []);
+
   const handleProductSelect = useCallback((image: GeneratedImage, blueprint: PrintifyBlueprint) => {
     // Create a minimal data structure to pass via URL
     try {
+      console.log('handleProductSelect called with:', {
+        imageId: image.id,
+        blueprintId: blueprint.id,
+        blueprintTitle: blueprint.title,
+      });
+
       const minimalData = {
         imageId: image.id,
         imageUrl: image.imageUrl,
@@ -197,10 +215,20 @@ export default function ImageGenerator() {
         blueprintDescription: blueprint.description,
       };
 
+      console.log('Setting sessionStorage with data:', minimalData);
+
       // Store in sessionStorage as backup
       sessionStorage.setItem('previewData', JSON.stringify(minimalData));
 
+      // Verify it was stored
+      const stored = sessionStorage.getItem('previewData');
+      console.log('Verified sessionStorage after setting:', {
+        hasData: !!stored,
+        dataLength: stored?.length,
+      });
+
       // Also navigate with a flag
+      console.log('Navigating to /preview?ready=1');
       router.push('/preview?ready=1');
     } catch (error) {
       console.error('Failed to store preview data:', error);
@@ -437,6 +465,7 @@ export default function ImageGenerator() {
         imageHistory={imageHistory}
         onAddToInput={handleAddToInput}
         onPublish={handlePublishClick}
+        onDelete={handleDeleteImage}
       />
 
       <ProductSelectorDialog

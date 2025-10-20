@@ -19,8 +19,17 @@ export async function POST(request: NextRequest) {
       publishToShopify = true,
     } = await request.json();
 
+    console.log('📦 Creating Printify product with config:', {
+      blueprintId,
+      printProviderId,
+      variants,
+      printAreas,
+    });
+
     // Upload image to Printify first
+    console.log('📤 Uploading image to Printify...');
     const uploadedImage = await uploadImageToPrintify(imageUrl, fileName);
+    console.log('✅ Image uploaded, ID:', uploadedImage.id);
 
     // Create product with the uploaded image
     const productData = {
@@ -29,16 +38,16 @@ export async function POST(request: NextRequest) {
       blueprint_id: blueprintId,
       print_provider_id: printProviderId,
       variants,
-      print_areas: printAreas.map((area: { variant_ids: number[]; placeholders: { position: string }[] }) => ({
+      print_areas: printAreas.map((area: { variant_ids: number[]; placeholders: { position: string; x: number; y: number; scale: number }[] }) => ({
         ...area,
-        placeholders: area.placeholders.map((placeholder: { position: string }) => ({
-          ...placeholder,
+        placeholders: area.placeholders.map((placeholder) => ({
+          position: placeholder.position,
           images: [
             {
               id: uploadedImage.id,
-              x: 0.5,
-              y: 0.5,
-              scale: 1,
+              x: placeholder.x,
+              y: placeholder.y,
+              scale: placeholder.scale,
               angle: 0,
             },
           ],
@@ -46,7 +55,9 @@ export async function POST(request: NextRequest) {
       })),
     };
 
+    console.log('🚀 Creating product with data:', JSON.stringify(productData, null, 2));
     const product = await createProduct(productData);
+    console.log('✅ Product created, ID:', product.id);
 
     // Publish to Shopify if requested
     if (publishToShopify) {

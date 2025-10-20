@@ -40,11 +40,37 @@ function getShopId(): string {
 
 /**
  * Upload an image to Printify
+ * Supports both URLs and base64 data URLs
  */
 export async function uploadImageToPrintify(
   imageUrl: string,
   fileName: string
 ): Promise<PrintifyImage> {
+  // If it's a base64 data URL, we need to upload via file contents
+  if (imageUrl.startsWith('data:')) {
+    // Convert base64 to binary
+    const base64Data = imageUrl.split(',')[1];
+    const binaryData = Buffer.from(base64Data, 'base64');
+    const base64Contents = binaryData.toString('base64');
+
+    const response = await fetch(`${PRINTIFY_API_BASE}/uploads/images.json`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        file_name: fileName,
+        contents: base64Contents,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to upload image to Printify: ${error}`);
+    }
+
+    return response.json();
+  }
+
+  // Regular URL upload
   const response = await fetch(`${PRINTIFY_API_BASE}/uploads/images.json`, {
     method: 'POST',
     headers: getHeaders(),

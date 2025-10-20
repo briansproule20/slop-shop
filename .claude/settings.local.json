@@ -1,30 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "WebSearch",
-      "WebFetch(domain:developers.printify.com)",
-      "Bash(node scripts/debug-printify.js)",
-      "Bash(xargs -I {} sh -c 'PRINTIFY_API_TOKEN={} node scripts/find-all-products.js')",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=mug\")",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=bottle\")",
-      "Bash(python3 -m json.tool)",
-      "Bash(for term in tumbler canvas poster \"tote bag\" \"t-shirt\" hoodie)",
-      "Bash(do echo \"=== $term ===\")",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=$term\")",
-      "Bash(python3 -c \"import sys,json; d=json.load(sys.stdin); print(f\"\"Total: {d[''''total'''']}\"\"); [print(f\"\"  {r[''''id'''']:4} - {r[''''title'''']}\"\") for r in d[''''results''''][:5]]\")",
-      "Bash(done)",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=tumbler\")",
-      "Bash(python3 -c \"import sys,json; d=json.load(sys.stdin); print(f\"\"TUMBLERS - Total: {d[''''total'''']}\\n\"\"); [print(f\"\"  {r[''''id'''']:4} - {r[''''title'''']}\"\") for r in d[''''results''''][:8]]\")",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=canvas\")",
-      "Bash(python3 -c \"import sys,json; d=json.load(sys.stdin); print(f\"\"CANVAS - Total: {d[''''total'''']}\\n\"\"); [print(f\"\"  {r[''''id'''']:4} - {r[''''title'''']}\"\") for r in d[''''results''''][:8]]\")",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=poster\")",
-      "Bash(python3 -c \"import sys,json; d=json.load(sys.stdin); print(f\"\"POSTERS - Total: {d[''''total'''']}\\n\"\"); [print(f\"\"  {r[''''id'''']:4} - {r[''''title'''']}\"\") for r in d[''''results''''][:8]]\")",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=tote\")",
-      "Bash(python3 -c \"import sys,json; d=json.load(sys.stdin); print(f\"\"TOTE BAGS - Total: {d[''''total'''']}\\n\"\"); [print(f\"\"  {r[''''id'''']:4} - {r[''''title'''']}\"\") for r in d[''''results''''][:8]]\")",
-      "Bash(curl -s \"http://localhost:3000/api/printify/search-products?q=shirt\")",
-      "Bash(python3 -c \"import sys,json; d=json.load(sys.stdin); print(f\"\"T-SHIRTS - Total: {d[''''total'''']}\\n\"\"); [print(f\"\"  {r[''''id'''']:4} - {r[''''title'''']}\"\") for r in d[''''results''''][:8]]\")"
+      "Bash(node -e \"\nconst token = require(''fs'').readFileSync(''.env.local'', ''utf8'').match(/PRINTIFY_API_TOKEN=(.*)/)[1];\nfetch(''https://api.printify.com/v1/catalog/blueprints/503/print_providers/48/variants.json'', {\n  headers: { ''Authorization'': ''Bearer '' + token }\n})\n.then(r => r.json())\n.then(d => {\n  console.log(''Available variants for Colorway provider:'');\n  d.variants.forEach(v => console.log(''  ID:'', v.id, ''- Title:'', v.title, ''- Options:'', JSON.stringify(v.options)));\n})\n.catch(e => console.error(e.message));\n\")"
     ],
     "deny": [],
     "ask": []

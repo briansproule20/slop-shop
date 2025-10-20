@@ -9,7 +9,7 @@ import {
   isImageActionable,
 } from '@/lib/image-actions';
 import type { GeneratedImage } from '@/lib/types';
-import { Copy, Download, Edit, ShoppingBag } from 'lucide-react';
+import { Copy, Download, Edit, ShoppingBag, Trash2 } from 'lucide-react';
 import NextImage from 'next/image';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ImageDetailsDialog } from './image-details-dialog';
@@ -44,6 +44,7 @@ interface ImageHistoryItemProps {
   onAddToInput: (files: File[]) => void;
   onImageClick: (image: GeneratedImage) => void;
   onPublish: (image: GeneratedImage) => void;
+  onDelete: (image: GeneratedImage) => void;
 }
 
 const ImageHistoryItem = React.memo(function ImageHistoryItem({
@@ -51,6 +52,7 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
   onAddToInput,
   onImageClick,
   onPublish,
+  onDelete,
 }: ImageHistoryItemProps) {
   const handleAddToInput = useCallback(() => {
     if (!isImageActionable(image)) return;
@@ -78,6 +80,11 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
     if (!isImageActionable(image)) return;
     onPublish(image);
   }, [image, onPublish]);
+
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete(image);
+  }, [image, onDelete]);
 
   return (
     <div
@@ -165,6 +172,15 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
             >
               <ShoppingBag size={14} />
             </Button>
+            <Button
+              size="sm"
+              onClick={handleDelete}
+              aria-label="Delete image"
+              title="Delete image"
+              className="h-8 w-8 p-0 bg-white/90 hover:bg-red-50 shadow-lg text-red-600 hover:text-red-700 cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-150 focus:ring-2 focus:ring-red-500"
+            >
+              <Trash2 size={14} />
+            </Button>
           </div>
         </>
       ) : (
@@ -180,12 +196,14 @@ interface ImageHistoryProps {
   imageHistory: GeneratedImage[];
   onAddToInput: (files: File[]) => void;
   onPublish: (image: GeneratedImage) => void;
+  onDelete: (image: GeneratedImage) => void;
 }
 
 export const ImageHistory = React.memo(function ImageHistory({
   imageHistory,
   onAddToInput,
   onPublish,
+  onDelete,
 }: ImageHistoryProps) {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(
     null
@@ -213,6 +231,7 @@ export const ImageHistory = React.memo(function ImageHistory({
             onAddToInput={onAddToInput}
             onImageClick={handleImageClick}
             onPublish={onPublish}
+            onDelete={onDelete}
           />
         ))}
       </div>
@@ -221,6 +240,8 @@ export const ImageHistory = React.memo(function ImageHistory({
         image={selectedImage}
         onClose={handleCloseDialog}
         onAddToInput={onAddToInput}
+        onPublish={onPublish}
+        onDelete={onDelete}
       />
     </div>
   );
