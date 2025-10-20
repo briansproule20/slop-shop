@@ -13,6 +13,7 @@ interface ProductConfig {
   x: number;
   y: number;
   tags: string[]; // Auto-categorization tags for Shopify
+  product_type: string; // Shopify product type/category
 }
 
 export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
@@ -28,6 +29,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
       67624, // 11oz variant
     ],
     tags: ['Drinkware', 'Mugs', 'Coffee', 'Kitchen'],
+    product_type: 'Drinkware',
   },
 };
 

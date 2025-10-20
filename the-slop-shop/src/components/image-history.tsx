@@ -9,7 +9,7 @@ import {
   isImageActionable,
 } from '@/lib/image-actions';
 import type { GeneratedImage } from '@/lib/types';
-import { Copy, Download, Edit, ShoppingBag, Trash2 } from 'lucide-react';
+import { Copy, Trash2 } from 'lucide-react';
 import NextImage from 'next/image';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ImageDetailsDialog } from './image-details-dialog';
@@ -54,32 +54,14 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
   onPublish,
   onDelete,
 }: ImageHistoryItemProps) {
-  const handleAddToInput = useCallback(() => {
-    if (!isImageActionable(image)) return;
-
-    const file = handleImageToFile(image.imageUrl!, image.id);
-    onAddToInput([file]);
-  }, [image, onAddToInput]);
-
   const handleImageClick = useCallback(() => {
     onImageClick(image);
   }, [image, onImageClick]);
-
-  const handleDownload = useCallback(() => {
-    if (!isImageActionable(image)) return;
-
-    handleImageDownload(image.imageUrl!, image.id);
-  }, [image]);
 
   const handleCopy = useCallback(async () => {
     if (!isImageActionable(image)) return;
     await handleImageCopy(image.imageUrl!);
   }, [image]);
-
-  const handlePublish = useCallback(() => {
-    if (!isImageActionable(image)) return;
-    onPublish(image);
-  }, [image, onPublish]);
 
   const handleDelete = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

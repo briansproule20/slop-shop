@@ -144,6 +144,7 @@ export default function ProductPreviewPage() {
           title,
           description,
           tags: config.tags,
+          productType: config.product_type,
           variants: config.variants.map(variantId => ({
             id: variantId,
             price: config.price,
