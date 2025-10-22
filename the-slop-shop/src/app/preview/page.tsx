@@ -7,10 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { MugMockup } from '@/components/mug-mockup';
 import { BeachTowelMockup } from '@/components/beach-towel-mockup';
 import { GolfTowelMockup } from '@/components/golf-towel-mockup';
+import { PublishingProgressModal } from '@/components/publishing-progress-modal';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
-import { ArrowLeft, Check, Loader2, Wand2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -36,7 +37,8 @@ export default function ProductPreviewPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [publishing, setPublishing] = useState(false);
-  const [published, setPublished] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [productUrl, setProductUrl] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [generatingCopy, setGeneratingCopy] = useState(false);
   const hasLoadedData = useRef(false);
@@ -205,16 +207,28 @@ export default function ProductPreviewPage() {
         throw new Error(errorData.error || 'Failed to publish product');
       }
 
-      setPublished(true);
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
+      const result = await response.json();
+      
+      // Try to get the Shopify product URL from sales_channel_properties
+      const externalUrl = result.product?.sales_channel_properties?.[0]?.external_url;
+      
+      // Construct URL - prefer specific product page, fallback to storefront home
+      const productUrl = externalUrl || 'https://slopshop-app.myshopify.com/';
+      
+      setProductUrl(productUrl);
+      // Show progress modal after successful API call
+      setShowProgressModal(true);
     } catch (err) {
       console.error('Error publishing product:', err);
       setError(err instanceof Error ? err.message : 'Failed to publish product');
     } finally {
       setPublishing(false);
     }
+  };
+
+  const handleProgressComplete = () => {
+    setShowProgressModal(false);
+    router.push('/');
   };
 
   if (error && !image) {
@@ -389,27 +403,14 @@ export default function ProductPreviewPage() {
                   </div>
                 )}
 
-                {published && (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-                    <Check size={16} className="text-green-600" />
-                    <p className="text-sm text-green-600">
-                      Published to your store!
-                    </p>
-                  </div>
-                )}
-
                 <Button
                   onClick={handlePublish}
-                  disabled={publishing || published || !title.trim()}
+                  disabled={publishing || !title.trim()}
                   className="w-full"
                   size="lg"
                 >
                   {publishing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {published
-                    ? 'Published!'
-                    : publishing
-                      ? 'Publishing...'
-                      : 'Publish to Store'}
+                  {publishing ? 'Publishing...' : 'Publish to Store'}
                 </Button>
 
                 <p className="text-xs text-gray-500 text-center">
@@ -421,6 +422,14 @@ export default function ProductPreviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Publishing Progress Modal */}
+      <PublishingProgressModal
+        isOpen={showProgressModal}
+        productTitle={title}
+        productUrl={productUrl}
+        onComplete={handleProgressComplete}
+      />
     </div>
   );
 }

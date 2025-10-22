@@ -53,6 +53,12 @@ export interface PrintifyProduct {
   tags: string[];
   blueprint_id: number;
   print_provider_id: number;
+  shop_id: number;
+  external_id?: string;
+  sales_channel_properties?: {
+    external_id?: string;
+    external_url?: string;
+  }[];
   variants: {
     id: number;
     price: number;
