@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MugMockup } from '@/components/mug-mockup';
 import { BeachTowelMockup } from '@/components/beach-towel-mockup';
+import { GolfTowelMockup } from '@/components/golf-towel-mockup';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
@@ -18,6 +19,7 @@ function getBlueprintProductKey(blueprintId: number): string {
   const blueprintMap: Record<number, string> = {
     503: 'ceramicMug',
     352: 'beachTowel',
+    1614: 'golfTowel',
   };
   const key = blueprintMap[blueprintId];
   if (!key) {
@@ -131,14 +133,18 @@ export default function ProductPreviewPage() {
       // Fallback to witty manual copy
       const cleanPrompt = prompt.charAt(0).toUpperCase() + prompt.slice(1);
       const isMug = productType.toLowerCase().includes('mug');
-      const isTowel = productType.toLowerCase().includes('towel');
+      const isBeachTowel = productType.toLowerCase().includes('beach');
+      const isGolfTowel = productType.toLowerCase().includes('golf');
       
       if (isMug) {
         setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
         setDescription(`Your morning coffee deserves this. ${cleanPrompt}. 11oz ceramic mug, dishwasher safe, microwave safe. Because why not?`);
-      } else if (isTowel) {
+      } else if (isBeachTowel) {
         setTitle(`${cleanPrompt.slice(0, 50)} Beach Towel`);
         setDescription(`Make a statement at the beach. ${cleanPrompt}. Premium quality beach towel with vibrant, one-sided print. Perfect for beach days, poolside lounging, or as unique home decor.`);
+      } else if (isGolfTowel) {
+        setTitle(`${cleanPrompt.slice(0, 50)} Golf Towel`);
+        setDescription(`Elevate your golf game. ${cleanPrompt}. Premium microfiber golf towel with gold grommet and ring. Perfect for the course or as a gift for golf enthusiasts.`);
       } else {
         setTitle(`${cleanPrompt.slice(0, 50)} ${productType}`);
         setDescription(`${cleanPrompt}. High-quality custom print on premium ${productType.toLowerCase()}.`);
@@ -278,6 +284,12 @@ export default function ProductPreviewPage() {
                   <BeachTowelMockup
                     imageUrl={image.imageUrl!}
                     imageAlt="Your design on beach towel"
+                  />
+                )}
+                {blueprint.id === 1614 && (
+                  <GolfTowelMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on golf towel"
                   />
                 )}
               </div>

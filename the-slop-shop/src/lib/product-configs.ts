@@ -49,6 +49,21 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     tags: ['Beach', 'Towel', 'Summer', 'Home & Living'],
     product_type: 'Home & Living',
   },
+  golfTowel: {
+    name: 'Golf Towel',
+    blueprint_id: 1614,
+    print_provider_id: 228, // Taylor
+    price: 1999, // $19.99
+    scale: 1.4, // 140% - fill the print area completely, edge to edge
+    x: 0.5,
+    y: 0.5,
+    angle: 0, // No rotation - towel is already portrait (16" × 24")
+    variants: [
+      112488, // 16" × 24"
+    ],
+    tags: ['Golf', 'Sports', 'Towel', 'Accessories'],
+    product_type: 'Sports & Outdoors',
+  },
 };
 
 export function getProductConfig(productKey: string): ProductConfig {
