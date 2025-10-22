@@ -27,6 +27,7 @@ import { EchoAccount } from '@/components/echo-account-next';
 import { Button } from '@/components/echo-button';
 import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 /**
  * Main application page
@@ -43,11 +44,20 @@ export default async function Home() {
     <div className="flex flex-col h-screen p-2 sm:p-4 max-w-6xl mx-auto">
       {/* Header with title and token display */}
       <header className="flex justify-between items-center w-full mb-4 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-slate-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm">
-        <div className="flex flex-col">
-          <h1 className="text-2xl sm:text-3xl font-mono bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-            The Slop Shop
-          </h1>
-          <p className="text-sm text-gray-600 font-mono">Creation Portal</p>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/logo/slopshop favicon.png"
+            alt="The Slop Shop Logo"
+            width={40}
+            height={40}
+            className="rounded-lg"
+          />
+          <div className="flex flex-col">
+            <h1 className="text-2xl sm:text-3xl font-mono bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              The Slop Shop
+            </h1>
+            <p className="text-sm text-gray-600 font-mono">Creation Portal</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {/* Echo token display widget */}

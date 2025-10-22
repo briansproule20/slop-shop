@@ -17,8 +17,34 @@ export const metadata: Metadata = {
   title: 'The Slop Shop',
   description: 'the creation portal',
   icons: {
-    icon: [{ url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' }],
-    shortcut: '/favicon.ico',
+    icon: [
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/logo/slopshop favicon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
+  openGraph: {
+    title: 'The Slop Shop',
+    description: 'the creation portal',
+    images: [
+      {
+        url: '/logo/slopshop favicon.png',
+        width: 512,
+        height: 512,
+        alt: 'The Slop Shop Logo',
+      },
+    ],
+    siteName: 'The Slop Shop',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'The Slop Shop',
+    description: 'the creation portal',
+    images: ['/logo/slopshop favicon.png'],
   },
 };
 
