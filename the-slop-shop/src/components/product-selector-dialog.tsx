@@ -25,6 +25,8 @@ interface ProductSelectorDialogProps {
 const POPULAR_BLUEPRINT_IDS = [
   // Mugs
   503, // White Ceramic Mug, 11oz
+  // Beach Towels
+  352, // Beach Towel
 ];
 
 // Category definitions for better organization
@@ -32,6 +34,10 @@ const PRODUCT_CATEGORIES = {
   drinkware: {
     title: '☕ Mugs',
     ids: [503],
+  },
+  homeLiving: {
+    title: '🏖️ Beach Towels',
+    ids: [352],
   },
 };
 

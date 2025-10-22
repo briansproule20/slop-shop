@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       blueprint_id: blueprintId,
       print_provider_id: printProviderId,
       variants,
-      print_areas: printAreas.map((area: { variant_ids: number[]; placeholders: { position: string; x: number; y: number; scale: number }[] }) => ({
+      print_areas: printAreas.map((area: { variant_ids: number[]; placeholders: { position: string; x: number; y: number; scale: number; angle: number }[] }) => ({
         ...area,
         placeholders: area.placeholders.map((placeholder) => ({
           position: placeholder.position,
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
               x: placeholder.x,
               y: placeholder.y,
               scale: placeholder.scale,
-              angle: 0,
+              angle: placeholder.angle,
             },
           ],
         })),

@@ -5,12 +5,26 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MugMockup } from '@/components/mug-mockup';
+import { BeachTowelMockup } from '@/components/beach-towel-mockup';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
 import { ArrowLeft, Check, Loader2, Wand2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+
+// Map blueprint IDs to product configuration keys
+function getBlueprintProductKey(blueprintId: number): string {
+  const blueprintMap: Record<number, string> = {
+    503: 'ceramicMug',
+    352: 'beachTowel',
+  };
+  const key = blueprintMap[blueprintId];
+  if (!key) {
+    throw new Error(`Unknown blueprint ID: ${blueprintId}`);
+  }
+  return key;
+}
 
 export default function ProductPreviewPage() {
   const router = useRouter();
@@ -116,8 +130,19 @@ export default function ProductPreviewPage() {
     } catch {
       // Fallback to witty manual copy
       const cleanPrompt = prompt.charAt(0).toUpperCase() + prompt.slice(1);
-      setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
-      setDescription(`Your morning coffee deserves this. ${cleanPrompt}. 11oz ceramic mug, dishwasher safe, microwave safe. Because why not?`);
+      const isMug = productType.toLowerCase().includes('mug');
+      const isTowel = productType.toLowerCase().includes('towel');
+      
+      if (isMug) {
+        setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
+        setDescription(`Your morning coffee deserves this. ${cleanPrompt}. 11oz ceramic mug, dishwasher safe, microwave safe. Because why not?`);
+      } else if (isTowel) {
+        setTitle(`${cleanPrompt.slice(0, 50)} Beach Towel`);
+        setDescription(`Make a statement at the beach. ${cleanPrompt}. Premium quality beach towel with vibrant, one-sided print. Perfect for beach days, poolside lounging, or as unique home decor.`);
+      } else {
+        setTitle(`${cleanPrompt.slice(0, 50)} ${productType}`);
+        setDescription(`${cleanPrompt}. High-quality custom print on premium ${productType.toLowerCase()}.`);
+      }
     } finally {
       setGeneratingCopy(false);
     }
@@ -130,8 +155,9 @@ export default function ProductPreviewPage() {
     setError(null);
 
     try {
-      // Get product configuration
-      const config = getProductConfig('ceramicMug');
+      // Get product configuration based on blueprint ID
+      const productKey = getBlueprintProductKey(blueprint.id);
+      const config = getProductConfig(productKey);
 
       const response = await fetch('/api/printify/create-product', {
         method: 'POST',
@@ -159,6 +185,7 @@ export default function ProductPreviewPage() {
                   x: config.x,
                   y: config.y,
                   scale: config.scale,
+                  angle: config.angle,
                 },
               ],
             },
@@ -241,10 +268,18 @@ export default function ProductPreviewPage() {
 
               {/* Product Mockup with Design */}
               <div className="mb-6">
-                <MugMockup
-                  imageUrl={image.imageUrl!}
-                  imageAlt="Your design on mug"
-                />
+                {blueprint.id === 503 && (
+                  <MugMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on mug"
+                  />
+                )}
+                {blueprint.id === 352 && (
+                  <BeachTowelMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on beach towel"
+                  />
+                )}
               </div>
 
               {/* Product Info */}
