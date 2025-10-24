@@ -120,3 +120,27 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile-optimized touch interactions */
+@layer utilities {
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth bottom sheet animation for mobile */
+  @keyframes slide-in-from-bottom {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 640px) {
+    [data-slot="dialog-content"] {
+      animation: slide-in-from-bottom 0.3s ease-out;
+    }
+  }
+}
