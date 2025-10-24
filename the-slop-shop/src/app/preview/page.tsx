@@ -8,10 +8,11 @@ import { MugMockup } from '@/components/mug-mockup';
 import { BeachTowelMockup } from '@/components/beach-towel-mockup';
 import { GolfTowelMockup } from '@/components/golf-towel-mockup';
 import { PublishingProgressModal } from '@/components/publishing-progress-modal';
+import { ProductCopyDialog } from '@/components/product-copy-dialog';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
-import { ArrowLeft, Loader2, Wand2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -41,6 +42,7 @@ export default function ProductPreviewPage() {
   const [productUrl, setProductUrl] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [generatingCopy, setGeneratingCopy] = useState(false);
+  const [showCopyDialog, setShowCopyDialog] = useState(false);
   const hasLoadedData = useRef(false);
 
   useEffect(() => {
@@ -348,17 +350,30 @@ export default function ProductPreviewPage() {
                     >
                       Product Title
                     </label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => generateProductCopy(image!.prompt, blueprint!.title)}
-                      disabled={generatingCopy || !image || !blueprint}
-                      className="h-7 text-xs"
-                    >
-                      <Wand2 size={12} className="mr-1" />
-                      Regenerate
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => generateProductCopy(image!.prompt, blueprint!.title)}
+                        disabled={generatingCopy || !image || !blueprint}
+                        className="h-7 text-xs"
+                      >
+                        <Wand2 size={12} className="mr-1" />
+                        Quick Gen
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCopyDialog(true)}
+                        disabled={!image || !blueprint}
+                        className="h-7 text-xs"
+                      >
+                        <Settings size={12} className="mr-1" />
+                        Customize
+                      </Button>
+                    </div>
                   </div>
                   <Input
                     id="title"
@@ -430,6 +445,22 @@ export default function ProductPreviewPage() {
         productUrl={productUrl}
         onComplete={handleProgressComplete}
       />
+
+      {/* Product Copy Customization Dialog */}
+      {image && blueprint && (
+        <ProductCopyDialog
+          isOpen={showCopyDialog}
+          onClose={() => setShowCopyDialog(false)}
+          onApply={(newTitle, newDescription) => {
+            setTitle(newTitle);
+            setDescription(newDescription);
+          }}
+          currentTitle={title}
+          currentDescription={description}
+          prompt={image.prompt}
+          productType={blueprint.title}
+        />
+      )}
     </div>
   );
 }
