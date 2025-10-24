@@ -8,6 +8,7 @@ import { MugMockup } from '@/components/mug-mockup';
 import { BeachTowelMockup } from '@/components/beach-towel-mockup';
 import { GolfTowelMockup } from '@/components/golf-towel-mockup';
 import { JournalMockup } from '@/components/journal-mockup';
+import { ToteBagMockup } from '@/components/tote-bag-mockup';
 import { PublishingProgressModal } from '@/components/publishing-progress-modal';
 import { ProductCopyDialog } from '@/components/product-copy-dialog';
 import { getProductConfig } from '@/lib/product-configs';
@@ -24,6 +25,7 @@ function getBlueprintProductKey(blueprintId: number): string {
     352: 'beachTowel',
     1614: 'golfTowel',
     76: 'journal',
+    1313: 'toteBag',
   };
   const key = blueprintMap[blueprintId];
   if (!key) {
@@ -141,7 +143,8 @@ export default function ProductPreviewPage() {
       const isMug = productType.toLowerCase().includes('mug');
       const isBeachTowel = productType.toLowerCase().includes('beach');
       const isGolfTowel = productType.toLowerCase().includes('golf');
-      
+      const isToteBag = productType.toLowerCase().includes('tote') || productType.toLowerCase().includes('bag');
+
       if (isMug) {
         setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
         setDescription(`Your morning coffee deserves this. ${cleanPrompt}. 11oz ceramic mug, dishwasher safe, microwave safe. Because why not?`);
@@ -151,6 +154,9 @@ export default function ProductPreviewPage() {
       } else if (isGolfTowel) {
         setTitle(`${cleanPrompt.slice(0, 50)} Golf Towel`);
         setDescription(`Elevate your golf game. ${cleanPrompt}. Premium microfiber golf towel with gold grommet and ring. Perfect for the course or as a gift for golf enthusiasts.`);
+      } else if (isToteBag) {
+        setTitle(`${cleanPrompt.slice(0, 50)} Tote Bag`);
+        setDescription(`Carry your style everywhere. ${cleanPrompt}. Durable cotton canvas tote bag, 15" x 16", perfect for groceries, books, or daily essentials. Eco-friendly and reusable.`);
       } else {
         setTitle(`${cleanPrompt.slice(0, 50)} ${productType}`);
         setDescription(`${cleanPrompt}. High-quality custom print on premium ${productType.toLowerCase()}.`);
@@ -314,6 +320,12 @@ export default function ProductPreviewPage() {
                   <JournalMockup
                     imageUrl={image.imageUrl!}
                     imageAlt="Your design on journal"
+                  />
+                )}
+                {blueprint.id === 1313 && (
+                  <ToteBagMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on tote bag"
                   />
                 )}
               </div>

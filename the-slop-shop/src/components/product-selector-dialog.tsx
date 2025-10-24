@@ -32,6 +32,8 @@ const POPULAR_BLUEPRINT_IDS = [
   1614, // Golf Towel
   // Journals
   76, // Blank Journal
+  // Tote Bags
+  1313, // Cotton Canvas Tote Bag
 ];
 
 // Category definitions for better organization
@@ -47,6 +49,10 @@ const PRODUCT_CATEGORIES = {
   paperGoods: {
     title: 'Paper Goods',
     ids: [76],
+  },
+  bags: {
+    title: 'Bags',
+    ids: [1313],
   },
 };
 

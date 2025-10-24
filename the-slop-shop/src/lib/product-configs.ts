@@ -79,6 +79,22 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     tags: ['Journal', 'Notebook', 'Stationery', 'Paper Goods'],
     product_type: 'Paper Goods',
   },
+  toteBag: {
+    name: 'Cotton Canvas Tote Bag',
+    blueprint_id: 1313,
+    print_provider_id: 99, // Printify Choice (verified working)
+    price: 1799, // $17.99
+    scale: 1.2, // 120% - fill the print area nicely (3000x3600 portrait)
+    x: 0.5,
+    y: 0.5,
+    angle: 0, // No rotation - print area is already portrait
+    variants: [
+      101409, // Natural / 15" x 16"
+      103598, // Black / 15" x 16"
+    ],
+    tags: ['Tote Bag', 'Bags', 'Accessories', 'Canvas'],
+    product_type: 'Accessories',
+  },
 };
 
 export function getProductConfig(productKey: string): ProductConfig {
