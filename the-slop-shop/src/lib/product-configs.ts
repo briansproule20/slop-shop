@@ -64,6 +64,21 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     tags: ['Golf', 'Sports', 'Towel', 'Accessories'],
     product_type: 'Sports & Outdoors',
   },
+  journal: {
+    name: 'Journal - Blank',
+    blueprint_id: 76,
+    print_provider_id: 1, // SPOKE Custom Products (verified working)
+    price: 2199, // $21.99
+    scale: 1.42, // 142% - match the print area aspect ratio (3742/2625) for full coverage without showing too much of the image
+    x: 0.5,
+    y: 0.5,
+    angle: 0, // No rotation
+    variants: [
+      34241, // Journal (verified variant ID from Printify API)
+    ],
+    tags: ['Journal', 'Notebook', 'Stationery', 'Paper Goods'],
+    product_type: 'Paper Goods',
+  },
 };
 
 export function getProductConfig(productKey: string): ProductConfig {

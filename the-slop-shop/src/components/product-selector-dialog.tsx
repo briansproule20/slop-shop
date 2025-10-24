@@ -30,17 +30,23 @@ const POPULAR_BLUEPRINT_IDS = [
   352, // Beach Towel
   // Golf Towels
   1614, // Golf Towel
+  // Journals
+  76, // Blank Journal
 ];
 
 // Category definitions for better organization
 const PRODUCT_CATEGORIES = {
   drinkware: {
-    title: '☕ Mugs',
+    title: 'Mugs',
     ids: [503],
   },
   towels: {
-    title: '🏖️ Towels',
+    title: 'Towels',
     ids: [352, 1614],
+  },
+  paperGoods: {
+    title: 'Paper Goods',
+    ids: [76],
   },
 };
 

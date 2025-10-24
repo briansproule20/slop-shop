@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { MugMockup } from '@/components/mug-mockup';
 import { BeachTowelMockup } from '@/components/beach-towel-mockup';
 import { GolfTowelMockup } from '@/components/golf-towel-mockup';
+import { JournalMockup } from '@/components/journal-mockup';
 import { PublishingProgressModal } from '@/components/publishing-progress-modal';
 import { ProductCopyDialog } from '@/components/product-copy-dialog';
 import { getProductConfig } from '@/lib/product-configs';
@@ -22,6 +23,7 @@ function getBlueprintProductKey(blueprintId: number): string {
     503: 'ceramicMug',
     352: 'beachTowel',
     1614: 'golfTowel',
+    76: 'journal',
   };
   const key = blueprintMap[blueprintId];
   if (!key) {
@@ -308,17 +310,23 @@ export default function ProductPreviewPage() {
                     imageAlt="Your design on golf towel"
                   />
                 )}
+                {blueprint.id === 76 && (
+                  <JournalMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on journal"
+                  />
+                )}
               </div>
 
               {/* Product Info */}
-              <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Product Type:</span>
-                  <span className="font-medium text-gray-900">{blueprint.title}</span>
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 space-y-3 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Product</span>
+                  <span className="text-base font-semibold text-gray-900">{blueprint.title}</span>
                 </div>
                 {blueprint.description && (
-                  <div className="pt-2 border-t border-gray-200">
-                    <p className="text-gray-600 text-xs leading-relaxed">
+                  <div className="pt-3 border-t border-gray-300">
+                    <p className="text-sm text-gray-700 leading-relaxed">
                       {blueprint.description}
                     </p>
                   </div>
