@@ -13,6 +13,7 @@ import { GreetingCardMockup } from '@/components/greeting-card-mockup';
 import { PetBandanaMockup } from '@/components/pet-bandana-mockup';
 import { PetFoodMatMockup } from '@/components/pet-food-mat-mockup';
 import { PosterMockup } from '@/components/poster-mockup';
+import { HoodieMockup } from '@/components/hoodie-mockup';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
@@ -32,6 +33,7 @@ function getBlueprintProductKey(blueprintId: number): string {
     282: 'poster',
     562: 'petBandana',
     855: 'petFoodMat',
+    77: 'hoodie',
   };
   const key = blueprintMap[blueprintId];
   if (!key) {
@@ -365,6 +367,12 @@ export default function ProductPreviewPage() {
                   <PosterMockup
                     imageUrl={image.imageUrl!}
                     imageAlt="Your design on poster"
+                  />
+                )}
+                {blueprint.id === 77 && (
+                  <HoodieMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on hoodie"
                   />
                 )}
               </div>

@@ -41,10 +41,16 @@ const POPULAR_BLUEPRINT_IDS = [
   // Pet Slop
   562, // Pet Bandana
   855, // Pet Food Mat (12x18)
+  // Apparel
+  77, // Unisex Heavy Blend Hoodie
 ];
 
 // Category definitions for better organization
 const PRODUCT_CATEGORIES = {
+  apparel: {
+    title: 'Apparel',
+    ids: [77],
+  },
   drinkware: {
     title: 'Mugs',
     ids: [503],
