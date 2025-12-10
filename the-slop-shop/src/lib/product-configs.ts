@@ -150,6 +150,24 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     tags: ['Pet', 'Dog', 'Cat', 'Pet Accessories', 'Food Mat'],
     product_type: 'Pet Accessories',
   },
+  poster: {
+    name: 'Matte Vertical Poster',
+    blueprint_id: 282,
+    print_provider_id: 99, // Printify Choice
+    price: 1499, // $14.99
+    scale: 1.27,
+    x: 0.5,
+    y: 0.5,
+    angle: 0,
+    position: 'front',
+    variants: [
+      43135, // 11" x 14" / Matte
+      43138, // 12" x 18" / Matte
+      43141, // 16" x 20" / Matte
+    ],
+    tags: ['Poster', 'Wall Art', 'Print', 'Paper Goods'],
+    product_type: 'Paper Goods',
+  },
 };
 
 export function getProductConfig(productKey: string): ProductConfig {

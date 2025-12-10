@@ -12,6 +12,7 @@ import { ToteBagMockup } from '@/components/tote-bag-mockup';
 import { GreetingCardMockup } from '@/components/greeting-card-mockup';
 import { PetBandanaMockup } from '@/components/pet-bandana-mockup';
 import { PetFoodMatMockup } from '@/components/pet-food-mat-mockup';
+import { PosterMockup } from '@/components/poster-mockup';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
@@ -28,6 +29,7 @@ function getBlueprintProductKey(blueprintId: number): string {
     76: 'journal',
     1313: 'toteBag',
     1094: 'greetingCard',
+    282: 'poster',
     562: 'petBandana',
     855: 'petFoodMat',
   };
@@ -357,6 +359,12 @@ export default function ProductPreviewPage() {
                   <PetFoodMatMockup
                     imageUrl={image.imageUrl!}
                     imageAlt="Your design on pet food mat"
+                  />
+                )}
+                {blueprint.id === 282 && (
+                  <PosterMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on poster"
                   />
                 )}
               </div>

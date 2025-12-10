@@ -36,6 +36,8 @@ const POPULAR_BLUEPRINT_IDS = [
   1313, // Cotton Canvas Tote Bag
   // Greeting Cards
   1094, // Greeting Cards (1, 10, 30, 50pcs)
+  // Posters
+  282, // Matte Vertical Poster
   // Pet Slop
   562, // Pet Bandana
   855, // Pet Food Mat (12x18)
@@ -53,7 +55,7 @@ const PRODUCT_CATEGORIES = {
   },
   paperGoods: {
     title: 'Paper Goods',
-    ids: [76, 1094],
+    ids: [76, 1094, 282],
   },
   bags: {
     title: 'Bags',

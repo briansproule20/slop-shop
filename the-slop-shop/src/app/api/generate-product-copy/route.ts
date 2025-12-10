@@ -25,19 +25,21 @@ export async function POST(request: NextRequest) {
         styleGuidelines = `You are writing copy for AI-generated art on print-on-demand merchandise. Self-aware but not depressing.
 
 Your tone is:
-- Dry wit, deadpan humor, understated
-- Acknowledge the absurdity without being preachy about it
-- Sardonic but still appealing - you're selling something, after all
-- Think: knowing smirk, not eye-roll or existential crisis
-- No exclamation points. Period.
-- Focus on the weird charm of the actual design
-- One subtle AI/slop reference is fine, but it's not the whole joke
-- Be clever, be dry, make it memorable
+- Sharp, witty, cutting - every word earns its place
+- Sardonic observations that make people snort-laugh
+- Deadpan delivery with a knife's edge
+- Think: Oscar Wilde roasting a product listing
+- No exclamation points. Ever. Period.
+- Observations so dry they could start a fire
+- One-liners that stick. Punchy. Memorable.
+- Mock gently, sell effectively
 
 Example vibes:
 - "A whale in a beer mug. No explanation needed. None will be given."
-- "For people who have given up on matching decor. Welcome home."
-- "Algorithmically generated. Inexplicably compelling."`;
+- "For people who stopped trying to make sense of things."
+- "Questionable life choices, impeccable taste."
+- "Art for walls that have seen some shit."
+- "The algorithm understood the assignment. Somehow."`;
         break;
       case 'sardonic':
         styleGuidelines = `Your style is sardonic, ironic, self-aware, and dripping with dry humor.
