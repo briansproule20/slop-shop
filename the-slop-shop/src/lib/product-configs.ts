@@ -134,6 +134,22 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     tags: ['Pet', 'Dog', 'Bandana', 'Pet Accessories'],
     product_type: 'Pet Accessories',
   },
+  petFoodMat: {
+    name: 'Pet Food Mat (12x18)',
+    blueprint_id: 855,
+    print_provider_id: 70, // Printed Mint
+    price: 1999, // $19.99
+    scale: 1.0, // Square image on landscape mat
+    x: 0.5,
+    y: 0.5,
+    angle: 0, // No rotation - scale up square to cover landscape mat
+    position: 'front',
+    variants: [
+      76892, // 12" × 18" / Rectangle
+    ],
+    tags: ['Pet', 'Dog', 'Cat', 'Pet Accessories', 'Food Mat'],
+    product_type: 'Pet Accessories',
+  },
 };
 
 export function getProductConfig(productKey: string): ProductConfig {

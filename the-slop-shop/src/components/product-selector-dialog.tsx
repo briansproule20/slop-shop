@@ -36,8 +36,9 @@ const POPULAR_BLUEPRINT_IDS = [
   1313, // Cotton Canvas Tote Bag
   // Greeting Cards
   1094, // Greeting Cards (1, 10, 30, 50pcs)
-  // Pet Bandana
+  // Pet Slop
   562, // Pet Bandana
+  855, // Pet Food Mat (12x18)
 ];
 
 // Category definitions for better organization
@@ -60,7 +61,7 @@ const PRODUCT_CATEGORIES = {
   },
   petSlop: {
     title: 'Pet Slop',
-    ids: [562],
+    ids: [562, 855],
   },
 };
 
