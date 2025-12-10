@@ -4,22 +4,14 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Loader2, Sparkles, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { Sparkles, Skull } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 
 interface ProductCopyDialogProps {
   isOpen: boolean;
@@ -30,61 +22,6 @@ interface ProductCopyDialogProps {
   prompt: string;
   productType: string;
 }
-
-type StylePreference = 'sardonic' | 'witty' | 'straightforward' | 'absurd' | 'unhinged' | 'luxury' | 'conspiracy' | 'shakespearean' | 'motivational' | 'noir';
-
-const STYLE_OPTIONS: { value: StylePreference; label: string; description: string }[] = [
-  {
-    value: 'sardonic',
-    label: 'Sardonic',
-    description: 'Ironic, self-aware, dripping with dry humor',
-  },
-  {
-    value: 'witty',
-    label: 'Witty',
-    description: 'Clever wordplay and playful humor',
-  },
-  {
-    value: 'straightforward',
-    label: 'Straightforward',
-    description: 'Clean, professional, hint of personality',
-  },
-  {
-    value: 'absurd',
-    label: 'Absurd',
-    description: 'Weird, surreal, delightfully nonsensical',
-  },
-  {
-    value: 'unhinged',
-    label: 'Unhinged',
-    description: '7 energy drinks, no sleep, pure chaos',
-  },
-  {
-    value: 'luxury',
-    label: 'Luxury Parody',
-    description: 'Pretentious haute couture marketing speak',
-  },
-  {
-    value: 'conspiracy',
-    label: 'Conspiracy',
-    description: 'Hidden meanings, secret knowledge',
-  },
-  {
-    value: 'shakespearean',
-    label: 'Shakespearean',
-    description: 'Overly dramatic theatrical prose',
-  },
-  {
-    value: 'motivational',
-    label: 'Motivational',
-    description: 'Life-changing transformative hustle energy',
-  },
-  {
-    value: 'noir',
-    label: 'Detective Noir',
-    description: 'Hard-boiled, moody, mysterious',
-  },
-];
 
 export function ProductCopyDialog({
   isOpen,
@@ -97,12 +34,39 @@ export function ProductCopyDialog({
 }: ProductCopyDialogProps) {
   const [title, setTitle] = useState(currentTitle);
   const [description, setDescription] = useState(currentDescription);
-  const [stylePreference, setStylePreference] = useState<StylePreference>('sardonic');
-  const [customInstructions, setCustomInstructions] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  // Sync with parent when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setTitle(currentTitle);
+      setDescription(currentDescription);
+    }
+  }, [isOpen, currentTitle, currentDescription]);
+
+  const typeText = async (
+    text: string,
+    setter: (value: string) => void,
+    inputRef: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>
+  ) => {
+    setter('');
+    for (let i = 0; i <= text.length; i++) {
+      setter(text.slice(0, i));
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const length = text.slice(0, i).length;
+        inputRef.current.setSelectionRange(length, length);
+      }
+      await new Promise((r) => setTimeout(r, 18 + Math.random() * 25));
+    }
+  };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
+    setIsTyping(true);
     try {
       const response = await fetch('/api/generate-product-copy', {
         method: 'POST',
@@ -110,10 +74,7 @@ export function ProductCopyDialog({
         body: JSON.stringify({
           prompt,
           productType,
-          existingTitle: title,
-          existingDescription: description,
-          stylePreference,
-          customInstructions: customInstructions.trim() || undefined,
+          stylePreference: 'slop',
         }),
       });
 
@@ -122,13 +83,14 @@ export function ProductCopyDialog({
       }
 
       const data = await response.json();
-      setTitle(data.title);
-      setDescription(data.description);
+
+      await typeText(data.title, setTitle, titleInputRef);
+      await typeText(data.description, setDescription, descriptionRef);
     } catch (error) {
       console.error('Error generating copy:', error);
-      // Keep existing values on error
     } finally {
       setIsGenerating(false);
+      setIsTyping(false);
     }
   };
 
@@ -137,151 +99,94 @@ export function ProductCopyDialog({
     onClose();
   };
 
-  const handleReset = () => {
-    setTitle(currentTitle);
-    setDescription(currentDescription);
-    setCustomInstructions('');
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="max-w-2xl max-h-[90vh] sm:max-h-[90vh] max-h-[85vh] overflow-y-auto sm:rounded-lg rounded-t-2xl sm:top-[50%] top-auto sm:bottom-auto bottom-0 sm:translate-y-[-50%] translate-y-0"
-        onInteractOutside={(e) => {
-          // Prevent closing on mobile when clicking overlay during scroll
-          if (typeof window !== 'undefined' && window.innerWidth < 640) {
-            e.preventDefault();
-          }
-        }}
-      >
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden sm:rounded-2xl rounded-t-2xl sm:top-[50%] top-auto sm:bottom-auto bottom-0 sm:translate-y-[-50%] translate-y-0">
         {/* Mobile pull handle */}
-        <div className="sm:hidden flex justify-center pt-3 pb-1 -mt-6">
-          <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+        <div className="sm:hidden flex justify-center pt-3 pb-1">
+          <div className="w-12 h-1.5 bg-muted-foreground/20 rounded-full" />
         </div>
 
-        <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">Customize Product Copy</DialogTitle>
-          <DialogDescription className="text-sm">
-            <span className="italic">&ldquo;{prompt}&rdquo;</span> · {productType}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          {/* Style Preference */}
-          <div className="space-y-2">
-            <Label htmlFor="style" className="text-sm">Writing Style</Label>
-            <Select
-              value={stylePreference}
-              onValueChange={(value) => setStylePreference(value as StylePreference)}
-            >
-              <SelectTrigger id="style" className="min-h-[4rem] h-auto py-3">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="start">
-                {STYLE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value} className="py-3">
-                    <div className="flex flex-col items-start text-left gap-0.5">
-                      <span className="font-medium text-sm">{option.label}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {option.description}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Custom Instructions */}
-          <div className="space-y-2">
-            <Label htmlFor="instructions" className="text-sm">Custom Instructions (Optional)</Label>
-            <Textarea
-              id="instructions"
-              value={customInstructions}
-              onChange={(e) => setCustomInstructions(e.target.value)}
-              placeholder="Give the AI specific directions..."
-              rows={2}
-              className="resize-none text-sm"
-            />
-          </div>
+        <div className="p-6 space-y-6">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-xl font-semibold">Product Copy</DialogTitle>
+            <p className="text-sm text-muted-foreground truncate">
+              {productType}
+            </p>
+          </DialogHeader>
 
           {/* Generate Button */}
           <Button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="w-full"
+            variant="outline"
+            className={`w-full h-14 text-base font-medium border-2 border-dashed hover:border-solid hover:bg-muted/50 transition-all ${isGenerating ? 'animate-pulse' : ''}`}
           >
             {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
+              <span className="flex items-center gap-2">
+                <Skull className="h-5 w-5 animate-spin" />
+                <span>Generating slop...</span>
+              </span>
             ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate
-              </>
+              <span className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                <span>Generate Copy...</span>
+              </span>
             )}
           </Button>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                or edit manually
-              </span>
-            </div>
-          </div>
-
-          {/* Editable Fields */}
+          {/* Form Fields */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Product title"
-                disabled={isGenerating}
-                className="text-sm"
-              />
+              <Label htmlFor="title" className="text-sm font-medium">
+                Title
+              </Label>
+              <div className="relative">
+                <Input
+                  ref={titleInputRef}
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Product title"
+                  disabled={isTyping}
+                  className="h-12 text-base pr-8"
+                />
+                {isTyping && title && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-foreground animate-blink" />
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Product description"
-                rows={3}
-                disabled={isGenerating}
-                className="resize-none text-sm"
-              />
+              <Label htmlFor="description" className="text-sm font-medium">
+                Description
+              </Label>
+              <div className="relative">
+                <Textarea
+                  ref={descriptionRef}
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Product description"
+                  rows={4}
+                  disabled={isTyping}
+                  className="text-base resize-none pr-8"
+                />
+                {isTyping && description && (
+                  <div className="absolute right-3 bottom-3 w-0.5 h-5 bg-foreground animate-blink" />
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            <Button
-              variant="outline"
-              onClick={handleReset}
-              className="flex-1"
-            >
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Reset
-            </Button>
-            <Button
-              onClick={handleApply}
-              disabled={!title.trim() || isGenerating}
-              className="flex-1"
-            >
-              Apply Changes
-            </Button>
-          </div>
+          {/* Apply Button */}
+          <Button
+            onClick={handleApply}
+            disabled={!title.trim() || isGenerating}
+            className="w-full h-12 text-base font-medium"
+          >
+            Apply
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

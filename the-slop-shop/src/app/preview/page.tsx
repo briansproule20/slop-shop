@@ -11,11 +11,10 @@ import { JournalMockup } from '@/components/journal-mockup';
 import { ToteBagMockup } from '@/components/tote-bag-mockup';
 import { GreetingCardMockup } from '@/components/greeting-card-mockup';
 import { PublishingProgressModal } from '@/components/publishing-progress-modal';
-import { ProductCopyDialog } from '@/components/product-copy-dialog';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
-import { ArrowLeft, Loader2, Wand2, Settings } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, Skull } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -48,35 +47,24 @@ export default function ProductPreviewPage() {
   const [productUrl, setProductUrl] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [generatingCopy, setGeneratingCopy] = useState(false);
-  const [showCopyDialog, setShowCopyDialog] = useState(false);
+  const [isTypingTitle, setIsTypingTitle] = useState(false);
+  const [isTypingDescription, setIsTypingDescription] = useState(false);
   const hasLoadedData = useRef(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     // Prevent loading data multiple times (React strict mode double-mount)
     if (hasLoadedData.current) {
-      console.log('Data already loaded, skipping...');
       return;
     }
-
-    console.log('Preview page mounted, checking for data...');
 
     // Try to get data from sessionStorage
     const previewData = sessionStorage.getItem('previewData');
 
-    console.log('SessionStorage data:', {
-      hasData: !!previewData,
-      dataLength: previewData?.length,
-    });
-
     if (previewData) {
       try {
         const data = JSON.parse(previewData);
-
-        console.log('Successfully parsed data:', {
-          imageId: data.imageId,
-          blueprintId: data.blueprintId,
-          blueprintTitle: data.blueprintTitle,
-        });
 
         // Reconstruct image and blueprint objects
         const reconstructedImage: GeneratedImage = {
@@ -98,11 +86,8 @@ export default function ProductPreviewPage() {
 
         setImage(reconstructedImage);
         setBlueprint(reconstructedBlueprint);
-        setError(null); // Clear any errors
-        hasLoadedData.current = true; // Mark as loaded
-
-        // Generate AI-powered title and description
-        generateProductCopy(reconstructedImage.prompt, reconstructedBlueprint.title);
+        setError(null);
+        hasLoadedData.current = true;
 
         // Clear sessionStorage after loading
         sessionStorage.removeItem('previewData');
@@ -111,62 +96,67 @@ export default function ProductPreviewPage() {
         setError('Invalid product data');
       }
     } else {
-      // Only show error if we haven't already loaded data
-      // This prevents showing error on hot reload or strict mode double-mount
       if (!hasLoadedData.current) {
-        console.log('No data found in sessionStorage - showing error to user');
         setError('No product data found. Please go back and select a product again.');
-      } else {
-        console.log('No data in sessionStorage, but data already loaded - skipping error');
       }
     }
   }, []);
 
-  const generateProductCopy = async (prompt: string, productType: string) => {
+  const typeText = async (
+    text: string,
+    setter: (value: string) => void,
+    inputRef: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>
+  ) => {
+    setter('');
+    for (let i = 0; i <= text.length; i++) {
+      setter(text.slice(0, i));
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const length = text.slice(0, i).length;
+        inputRef.current.setSelectionRange(length, length);
+      }
+      await new Promise((r) => setTimeout(r, 18 + Math.random() * 25));
+    }
+  };
+
+  const generateSlopCopy = async () => {
+    if (!image || !blueprint) return;
+
     setGeneratingCopy(true);
     try {
       const response = await fetch('/api/generate-product-copy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, productType }),
+        body: JSON.stringify({
+          prompt: image.prompt,
+          productType: blueprint.title,
+          stylePreference: 'slop',
+        }),
       });
 
       if (!response.ok) {
-        console.log('AI generation failed, using fallback copy');
         throw new Error('Failed to generate product copy');
       }
 
       const data = await response.json();
-      setTitle(data.title);
-      setDescription(data.description);
-    } catch {
-      // Fallback to witty manual copy
-      const cleanPrompt = prompt.charAt(0).toUpperCase() + prompt.slice(1);
-      const isMug = productType.toLowerCase().includes('mug');
-      const isBeachTowel = productType.toLowerCase().includes('beach');
-      const isGolfTowel = productType.toLowerCase().includes('golf');
-      const isToteBag = productType.toLowerCase().includes('tote') || productType.toLowerCase().includes('bag');
-      const isGreetingCard = productType.toLowerCase().includes('greeting') || productType.toLowerCase().includes('card');
 
-      if (isMug) {
-        setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
-        setDescription(`Your morning coffee deserves this. ${cleanPrompt}. 11oz ceramic mug, dishwasher safe, microwave safe. Because why not?`);
-      } else if (isBeachTowel) {
-        setTitle(`${cleanPrompt.slice(0, 50)} Beach Towel`);
-        setDescription(`Make a statement at the beach. ${cleanPrompt}. Premium quality beach towel with vibrant, one-sided print. Perfect for beach days, poolside lounging, or as unique home decor.`);
-      } else if (isGolfTowel) {
-        setTitle(`${cleanPrompt.slice(0, 50)} Golf Towel`);
-        setDescription(`Elevate your golf game. ${cleanPrompt}. Premium microfiber golf towel with gold grommet and ring. Perfect for the course or as a gift for golf enthusiasts.`);
-      } else if (isToteBag) {
-        setTitle(`${cleanPrompt.slice(0, 50)} Tote Bag`);
-        setDescription(`Carry your style everywhere. ${cleanPrompt}. Durable cotton canvas tote bag, 15" x 16", perfect for groceries, books, or daily essentials. Eco-friendly and reusable.`);
-      } else if (isGreetingCard) {
-        setTitle(`${cleanPrompt.slice(0, 50)} Greeting Card`);
-        setDescription(`Send your best wishes in style. ${cleanPrompt}. Premium 270gsm paper greeting card with envelope included. Available in multiple sizes and quantities. Perfect for any occasion.`);
-      } else {
-        setTitle(`${cleanPrompt.slice(0, 50)} ${productType}`);
-        setDescription(`${cleanPrompt}. High-quality custom print on premium ${productType.toLowerCase()}.`);
-      }
+      // Type out title first
+      setIsTypingTitle(true);
+      await typeText(data.title, setTitle, titleInputRef);
+      setIsTypingTitle(false);
+
+      // Then description
+      setIsTypingDescription(true);
+      await typeText(data.description, setDescription, descriptionRef);
+      setIsTypingDescription(false);
+    } catch (err) {
+      console.error('Error generating copy:', err);
+      // Fallback
+      const cleanPrompt = image.prompt.charAt(0).toUpperCase() + image.prompt.slice(1);
+      setTitle(`${cleanPrompt.slice(0, 50)}`);
+      setDescription(`AI made this. You're buying it. ${cleanPrompt}.`);
+      setIsTypingTitle(false);
+      setIsTypingDescription(false);
     } finally {
       setGeneratingCopy(false);
     }
@@ -224,13 +214,13 @@ export default function ProductPreviewPage() {
       }
 
       const result = await response.json();
-      
+
       // Try to get the Shopify product URL from sales_channel_properties
       const externalUrl = result.product?.sales_channel_properties?.[0]?.external_url;
-      
+
       // Construct URL - prefer specific product page, fallback to storefront home
       const productUrl = externalUrl || 'https://slopshop-app.myshopify.com/';
-      
+
       setProductUrl(productUrl);
       // Show progress modal after successful API call
       setShowProgressModal(true);
@@ -265,10 +255,25 @@ export default function ProductPreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+    <div className="min-h-screen bg-background">
+      {/* Mobile Header - Fixed */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b md:hidden">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push('/')}
+            className="h-9 w-9"
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <h1 className="text-lg font-semibold truncate">{blueprint.title}</h1>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block max-w-5xl mx-auto px-6 pt-8 pb-4">
+        <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
@@ -278,32 +283,18 @@ export default function ProductPreviewPage() {
             <ArrowLeft size={16} />
             Back
           </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Product Preview
-          </h1>
         </div>
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Left: Product Mockup */}
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 pb-8 md:px-6">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          {/* Product Mockup */}
           <div className="space-y-4">
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {blueprint.title}
-                </h2>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  {blueprint.brand && (
-                    <>
-                      <span className="font-medium">{blueprint.brand}</span>
-                      {blueprint.model && <span>•</span>}
-                    </>
-                  )}
-                  {blueprint.model && <span>{blueprint.model}</span>}
-                </div>
-              </div>
-
-              {/* Product Mockup with Design */}
-              <div className="mb-6">
+            {/* Mockup Card */}
+            <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
+              {/* Mockup */}
+              <div className="p-4 md:p-6">
                 {blueprint.id === 503 && (
                   <MugMockup
                     imageUrl={image.imageUrl!}
@@ -342,129 +333,118 @@ export default function ProductPreviewPage() {
                 )}
               </div>
 
-              {/* Product Info */}
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 space-y-3 border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Product</span>
-                  <span className="text-base font-semibold text-gray-900">{blueprint.title}</span>
-                </div>
-                {blueprint.description && (
-                  <div className="pt-3 border-t border-gray-300">
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      {blueprint.description}
-                    </p>
-                  </div>
+              {/* Product Title - Desktop only */}
+              <div className="hidden md:block px-6 pb-6">
+                <h2 className="text-xl font-semibold">{blueprint.title}</h2>
+                {(blueprint.brand || blueprint.model) && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {[blueprint.brand, blueprint.model].filter(Boolean).join(' · ')}
+                  </p>
                 )}
               </div>
             </div>
+
+            {/* Design Prompt - Mobile shows below mockup */}
+            <div className="md:hidden bg-muted/50 rounded-xl p-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Your Design</p>
+              <p className="text-sm italic">&ldquo;{image.prompt}&rdquo;</p>
+            </div>
           </div>
 
-          {/* Right: Product Details Form */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900">
-                Product Details
-              </h2>
-
-              <div className="space-y-4">
-                {generatingCopy && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>AI is writing your product copy...</span>
-                  </div>
+          {/* Product Details Form */}
+          <div className="space-y-4">
+            <div className="bg-card rounded-2xl border shadow-sm p-5 md:p-6">
+              {/* Generate Copy Button */}
+              <Button
+                onClick={generateSlopCopy}
+                disabled={generatingCopy}
+                variant="outline"
+                className={`w-full h-12 md:h-14 text-sm md:text-base font-medium border-2 border-dashed hover:border-solid hover:bg-muted/50 transition-all ${generatingCopy ? 'animate-pulse' : ''}`}
+              >
+                {generatingCopy ? (
+                  <span className="flex items-center gap-2">
+                    <Skull className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
+                    <span>Generating slop...</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 md:h-5 md:w-5" />
+                    <span>Generate Copy...</span>
+                  </span>
                 )}
+              </Button>
 
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Product Title
-                    </label>
-                    <div className="flex gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => generateProductCopy(image!.prompt, blueprint!.title)}
-                        disabled={generatingCopy || !image || !blueprint}
-                        className="h-7 text-xs"
-                      >
-                        <Wand2 size={12} className="mr-1" />
-                        Quick Gen
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowCopyDialog(true)}
-                        disabled={!image || !blueprint}
-                        className="h-7 text-xs"
-                      >
-                        <Settings size={12} className="mr-1" />
-                        Customize
-                      </Button>
-                    </div>
+              <div className="space-y-4 mt-5">
+                {/* Title Field */}
+                <div className="space-y-2">
+                  <label htmlFor="title" className="text-sm font-medium">
+                    Title
+                  </label>
+                  <div className="relative">
+                    <Input
+                      ref={titleInputRef}
+                      id="title"
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                      placeholder="Product title"
+                      className="h-11 md:h-12 text-base"
+                      disabled={isTypingTitle || isTypingDescription}
+                    />
+                    {isTypingTitle && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-foreground animate-blink" />
+                    )}
                   </div>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    placeholder="Enter product title"
-                    className="w-full"
-                    disabled={generatingCopy}
-                  />
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                {/* Description Field */}
+                <div className="space-y-2">
+                  <label htmlFor="description" className="text-sm font-medium">
                     Description
                   </label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    placeholder="Enter product description"
-                    rows={4}
-                    className="w-full"
-                    disabled={generatingCopy}
-                  />
-                </div>
-
-                <div className="pt-4 border-t">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">
-                    Your Design
-                  </h3>
-                  <p className="text-sm text-gray-600 italic">
-                    &ldquo;{image.prompt}&rdquo;
-                  </p>
-                </div>
-
-                {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600">{error}</p>
+                  <div className="relative">
+                    <Textarea
+                      ref={descriptionRef}
+                      id="description"
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      placeholder="Product description"
+                      rows={4}
+                      className="text-base resize-none"
+                      disabled={isTypingTitle || isTypingDescription}
+                    />
+                    {isTypingDescription && (
+                      <div className="absolute right-3 bottom-3 w-0.5 h-5 bg-foreground animate-blink" />
+                    )}
                   </div>
-                )}
+                </div>
 
-                <Button
-                  onClick={handlePublish}
-                  disabled={publishing || !title.trim()}
-                  className="w-full"
-                  size="lg"
-                >
-                  {publishing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {publishing ? 'Publishing...' : 'Publish to Store'}
-                </Button>
-
-                <p className="text-xs text-gray-500 text-center">
-                  This will create a product in Printify and publish it to your
-                  Shopify store
-                </p>
+                {/* Design Prompt - Desktop */}
+                <div className="hidden md:block pt-4 border-t">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Your Design</p>
+                  <p className="text-sm italic">&ldquo;{image.prompt}&rdquo;</p>
+                </div>
               </div>
+
+              {error && (
+                <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <p className="text-sm text-destructive">{error}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Publish Button - Separate card on mobile for thumb reach */}
+            <div className="bg-card rounded-2xl border shadow-sm p-5 md:p-6">
+              <Button
+                onClick={handlePublish}
+                disabled={publishing || !title.trim()}
+                className="w-full h-12 md:h-14 text-base font-medium"
+              >
+                {publishing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {publishing ? 'Publishing...' : 'Publish to Store'}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center mt-3">
+                Creates product in Printify and publishes to Shopify
+              </p>
             </div>
           </div>
         </div>
@@ -477,22 +457,6 @@ export default function ProductPreviewPage() {
         productUrl={productUrl}
         onComplete={handleProgressComplete}
       />
-
-      {/* Product Copy Customization Dialog */}
-      {image && blueprint && (
-        <ProductCopyDialog
-          isOpen={showCopyDialog}
-          onClose={() => setShowCopyDialog(false)}
-          onApply={(newTitle, newDescription) => {
-            setTitle(newTitle);
-            setDescription(newDescription);
-          }}
-          currentTitle={title}
-          currentDescription={description}
-          prompt={image.prompt}
-          productType={blueprint.title}
-        />
-      )}
     </div>
   );
 }
