@@ -10,11 +10,11 @@ import { GolfTowelMockup } from '@/components/golf-towel-mockup';
 import { JournalMockup } from '@/components/journal-mockup';
 import { ToteBagMockup } from '@/components/tote-bag-mockup';
 import { GreetingCardMockup } from '@/components/greeting-card-mockup';
-import { PublishingProgressModal } from '@/components/publishing-progress-modal';
+import { PetBandanaMockup } from '@/components/pet-bandana-mockup';
 import { getProductConfig } from '@/lib/product-configs';
 import type { PrintifyBlueprint } from '@/lib/printify-types';
 import type { GeneratedImage } from '@/lib/types';
-import { ArrowLeft, Loader2, Sparkles, Skull } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, Skull, CheckCircle2, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -27,6 +27,7 @@ function getBlueprintProductKey(blueprintId: number): string {
     76: 'journal',
     1313: 'toteBag',
     1094: 'greetingCard',
+    562: 'petBandana',
   };
   const key = blueprintMap[blueprintId];
   if (!key) {
@@ -43,7 +44,8 @@ export default function ProductPreviewPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [publishing, setPublishing] = useState(false);
-  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [publishProgress, setPublishProgress] = useState(0);
+  const [isPublished, setIsPublished] = useState(false);
   const [productUrl, setProductUrl] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [generatingCopy, setGeneratingCopy] = useState(false);
@@ -166,7 +168,16 @@ export default function ProductPreviewPage() {
     if (!image || !blueprint) return;
 
     setPublishing(true);
+    setPublishProgress(0);
     setError(null);
+
+    // Start progress animation
+    const progressInterval = setInterval(() => {
+      setPublishProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 15;
+      });
+    }, 500);
 
     try {
       // Get product configuration based on blueprint ID
@@ -208,6 +219,8 @@ export default function ProductPreviewPage() {
         }),
       });
 
+      clearInterval(progressInterval);
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to publish product');
@@ -219,22 +232,23 @@ export default function ProductPreviewPage() {
       const externalUrl = result.product?.sales_channel_properties?.[0]?.external_url;
 
       // Construct URL - prefer specific product page, fallback to storefront home
-      const productUrl = externalUrl || 'https://slopshop-app.myshopify.com/';
+      const url = externalUrl || 'https://slopshop-app.myshopify.com/';
 
-      setProductUrl(productUrl);
-      // Show progress modal after successful API call
-      setShowProgressModal(true);
+      setPublishProgress(100);
+      setProductUrl(url);
+      setIsPublished(true);
     } catch (err) {
+      clearInterval(progressInterval);
       console.error('Error publishing product:', err);
       setError(err instanceof Error ? err.message : 'Failed to publish product');
+      setPublishProgress(0);
     } finally {
       setPublishing(false);
     }
   };
 
-  const handleProgressComplete = () => {
-    setShowProgressModal(false);
-    router.push('/');
+  const handleViewProduct = () => {
+    window.open(productUrl, '_blank');
   };
 
   if (error && !image) {
@@ -331,6 +345,12 @@ export default function ProductPreviewPage() {
                     imageAlt="Your design on greeting card"
                   />
                 )}
+                {blueprint.id === 562 && (
+                  <PetBandanaMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on pet bandana"
+                  />
+                )}
               </div>
 
               {/* Product Title - Desktop only */}
@@ -357,14 +377,19 @@ export default function ProductPreviewPage() {
               {/* Generate Copy Button */}
               <Button
                 onClick={generateSlopCopy}
-                disabled={generatingCopy}
+                disabled={generatingCopy || isPublished || publishing}
                 variant="outline"
-                className={`w-full h-12 md:h-14 text-sm md:text-base font-medium border-2 border-dashed hover:border-solid hover:bg-muted/50 transition-all ${generatingCopy ? 'animate-pulse' : ''}`}
+                className={`w-full h-12 md:h-14 text-sm md:text-base font-medium border-2 border-dashed hover:border-solid hover:bg-muted/50 transition-all ${generatingCopy ? 'animate-pulse' : ''} ${isPublished ? 'opacity-50' : ''}`}
               >
                 {generatingCopy ? (
                   <span className="flex items-center gap-2">
                     <Skull className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
                     <span>Generating slop...</span>
+                  </span>
+                ) : isPublished ? (
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" />
+                    <span>Copy Locked</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
@@ -388,7 +413,7 @@ export default function ProductPreviewPage() {
                       onChange={e => setTitle(e.target.value)}
                       placeholder="Product title"
                       className="h-11 md:h-12 text-base"
-                      disabled={isTypingTitle || isTypingDescription}
+                      disabled={isTypingTitle || isTypingDescription || isPublished}
                     />
                     {isTypingTitle && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-foreground animate-blink" />
@@ -410,7 +435,7 @@ export default function ProductPreviewPage() {
                       placeholder="Product description"
                       rows={4}
                       className="text-base resize-none"
-                      disabled={isTypingTitle || isTypingDescription}
+                      disabled={isTypingTitle || isTypingDescription || isPublished}
                     />
                     {isTypingDescription && (
                       <div className="absolute right-3 bottom-3 w-0.5 h-5 bg-foreground animate-blink" />
@@ -433,30 +458,62 @@ export default function ProductPreviewPage() {
             </div>
 
             {/* Publish Button - Separate card on mobile for thumb reach */}
-            <div className="bg-card rounded-2xl border shadow-sm p-5 md:p-6">
-              <Button
-                onClick={handlePublish}
-                disabled={publishing || !title.trim()}
-                className="w-full h-12 md:h-14 text-base font-medium"
-              >
-                {publishing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {publishing ? 'Publishing...' : 'Publish to Store'}
-              </Button>
-              <p className="text-xs text-muted-foreground text-center mt-3">
-                Creates product in Printify and publishes to Shopify
-              </p>
+            <div className="bg-card rounded-2xl border shadow-sm p-5 md:p-6 space-y-4">
+              {!isPublished ? (
+                <>
+                  <div className="relative">
+                    <Button
+                      onClick={handlePublish}
+                      disabled={publishing || !title.trim()}
+                      className="w-full h-12 md:h-14 text-base font-medium relative overflow-hidden"
+                    >
+                      {/* Progress bar background */}
+                      {publishing && (
+                        <div
+                          className="absolute inset-0 bg-primary/20 transition-all duration-300"
+                          style={{ width: `${publishProgress}%` }}
+                        />
+                      )}
+                      <span className="relative flex items-center justify-center">
+                        {publishing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {publishing ? `Publishing... ${Math.round(publishProgress)}%` : 'Publish to Store'}
+                      </span>
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Creates product in Printify and publishes to Shopify
+                  </p>
+                </>
+              ) : (
+                <>
+                  {/* Success state */}
+                  <div className="flex items-center justify-center gap-2 text-green-600 py-2">
+                    <CheckCircle2 className="h-5 w-5" />
+                    <span className="font-medium">Published successfully</span>
+                  </div>
+                  <Button
+                    onClick={handleViewProduct}
+                    className="w-full h-12 md:h-14 text-base font-medium"
+                  >
+                    View Product in Store
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={() => router.push('/')}
+                    variant="outline"
+                    className="w-full h-10"
+                  >
+                    Create Another Product
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    It may take 1-2 minutes for the product to fully sync
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Publishing Progress Modal */}
-      <PublishingProgressModal
-        isOpen={showProgressModal}
-        productTitle={title}
-        productUrl={productUrl}
-        onComplete={handleProgressComplete}
-      />
     </div>
   );
 }

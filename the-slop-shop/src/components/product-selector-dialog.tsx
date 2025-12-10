@@ -36,6 +36,8 @@ const POPULAR_BLUEPRINT_IDS = [
   1313, // Cotton Canvas Tote Bag
   // Greeting Cards
   1094, // Greeting Cards (1, 10, 30, 50pcs)
+  // Pet Bandana
+  562, // Pet Bandana
 ];
 
 // Category definitions for better organization
@@ -55,6 +57,10 @@ const PRODUCT_CATEGORIES = {
   bags: {
     title: 'Bags',
     ids: [1313],
+  },
+  petSlop: {
+    title: 'Pet Slop',
+    ids: [562],
   },
 };
 
