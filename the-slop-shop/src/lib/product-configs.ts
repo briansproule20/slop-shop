@@ -121,7 +121,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     name: 'Pet Bandana',
     blueprint_id: 562,
     print_provider_id: 70, // Printed Mint
-    price: 1299, // $12.99
+    price: 1699, // $16.99
     scale: 1.0,
     x: 0.5,
     y: 0.25,
