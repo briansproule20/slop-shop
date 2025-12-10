@@ -370,6 +370,21 @@ export default function ProductPreviewPage() {
                   </p>
                 )}
               </div>
+
+              {/* Preview disclaimer */}
+              <div className="px-6 pb-6 pt-2 border-t">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Published version may vary slightly from preview.{' '}
+                  <a
+                    href="https://slopshop-app.myshopify.com/collections/all"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground transition-colors"
+                  >
+                    View final products
+                  </a>
+                </p>
+              </div>
             </div>
 
             {/* Design Prompt - Mobile shows below mockup */}
