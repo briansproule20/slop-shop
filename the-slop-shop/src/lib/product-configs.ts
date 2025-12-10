@@ -173,7 +173,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     blueprint_id: 77,
     print_provider_id: 99, // Printify Choice
     price: 4499, // $44.99
-    scale: 0.85, // Larger print area coverage
+    scale: 0.75, // Front print area coverage
     x: 0.5,
     y: 0.5,
     angle: 0,
