@@ -175,7 +175,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     price: 4499, // $44.99
     scale: 0.75, // Front print area coverage
     x: 0.5,
-    y: 0.55, // Moved down slightly from center
+    y: 0.525, // Positioned slightly below center
     angle: 0,
     position: 'front',
     variants: [
