@@ -34,6 +34,8 @@ const POPULAR_BLUEPRINT_IDS = [
   76, // Blank Journal
   // Tote Bags
   1313, // Cotton Canvas Tote Bag
+  // Greeting Cards
+  1094, // Greeting Cards (1, 10, 30, 50pcs)
 ];
 
 // Category definitions for better organization
@@ -48,7 +50,7 @@ const PRODUCT_CATEGORIES = {
   },
   paperGoods: {
     title: 'Paper Goods',
-    ids: [76],
+    ids: [76, 1094],
   },
   bags: {
     title: 'Bags',

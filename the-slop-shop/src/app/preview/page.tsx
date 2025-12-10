@@ -9,6 +9,7 @@ import { BeachTowelMockup } from '@/components/beach-towel-mockup';
 import { GolfTowelMockup } from '@/components/golf-towel-mockup';
 import { JournalMockup } from '@/components/journal-mockup';
 import { ToteBagMockup } from '@/components/tote-bag-mockup';
+import { GreetingCardMockup } from '@/components/greeting-card-mockup';
 import { PublishingProgressModal } from '@/components/publishing-progress-modal';
 import { ProductCopyDialog } from '@/components/product-copy-dialog';
 import { getProductConfig } from '@/lib/product-configs';
@@ -26,6 +27,7 @@ function getBlueprintProductKey(blueprintId: number): string {
     1614: 'golfTowel',
     76: 'journal',
     1313: 'toteBag',
+    1094: 'greetingCard',
   };
   const key = blueprintMap[blueprintId];
   if (!key) {
@@ -144,6 +146,7 @@ export default function ProductPreviewPage() {
       const isBeachTowel = productType.toLowerCase().includes('beach');
       const isGolfTowel = productType.toLowerCase().includes('golf');
       const isToteBag = productType.toLowerCase().includes('tote') || productType.toLowerCase().includes('bag');
+      const isGreetingCard = productType.toLowerCase().includes('greeting') || productType.toLowerCase().includes('card');
 
       if (isMug) {
         setTitle(`${cleanPrompt.slice(0, 50)} Mug`);
@@ -157,6 +160,9 @@ export default function ProductPreviewPage() {
       } else if (isToteBag) {
         setTitle(`${cleanPrompt.slice(0, 50)} Tote Bag`);
         setDescription(`Carry your style everywhere. ${cleanPrompt}. Durable cotton canvas tote bag, 15" x 16", perfect for groceries, books, or daily essentials. Eco-friendly and reusable.`);
+      } else if (isGreetingCard) {
+        setTitle(`${cleanPrompt.slice(0, 50)} Greeting Card`);
+        setDescription(`Send your best wishes in style. ${cleanPrompt}. Premium 270gsm paper greeting card with envelope included. Available in multiple sizes and quantities. Perfect for any occasion.`);
       } else {
         setTitle(`${cleanPrompt.slice(0, 50)} ${productType}`);
         setDescription(`${cleanPrompt}. High-quality custom print on premium ${productType.toLowerCase()}.`);
@@ -199,7 +205,7 @@ export default function ProductPreviewPage() {
               variant_ids: config.variants,
               placeholders: [
                 {
-                  position: 'front',
+                  position: config.position,
                   x: config.x,
                   y: config.y,
                   scale: config.scale,
@@ -326,6 +332,12 @@ export default function ProductPreviewPage() {
                   <ToteBagMockup
                     imageUrl={image.imageUrl!}
                     imageAlt="Your design on tote bag"
+                  />
+                )}
+                {blueprint.id === 1094 && (
+                  <GreetingCardMockup
+                    imageUrl={image.imageUrl!}
+                    imageAlt="Your design on greeting card"
                   />
                 )}
               </div>

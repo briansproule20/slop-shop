@@ -13,6 +13,7 @@ interface ProductConfig {
   x: number;
   y: number;
   angle: number; // Rotation angle in degrees (0-360)
+  position: string; // Print area position (e.g., 'front', 'cover')
   tags: string[]; // Auto-categorization tags for Shopify
   product_type: string; // Shopify product type/category
 }
@@ -27,6 +28,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     x: 0.5,
     y: 0.5,
     angle: 0, // No rotation
+    position: 'front',
     variants: [
       67624, // 11oz variant
     ],
@@ -42,6 +44,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     x: 0.5,
     y: 0.5,
     angle: 270, // Rotate 90 degrees counterclockwise for portrait orientation
+    position: 'front',
     variants: [
       44444, // 30" × 60"
       44445, // 36" × 72"
@@ -58,6 +61,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     x: 0.5,
     y: 0.5,
     angle: 0, // No rotation - towel is already portrait (16" × 24")
+    position: 'front',
     variants: [
       112488, // 16" × 24"
     ],
@@ -73,6 +77,7 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     x: 0.5,
     y: 0.5,
     angle: 0, // No rotation
+    position: 'front',
     variants: [
       34241, // Journal (verified variant ID from Printify API)
     ],
@@ -88,12 +93,29 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     x: 0.5,
     y: 0.5,
     angle: 0, // No rotation - print area is already portrait
+    position: 'front',
     variants: [
       101409, // Natural / 15" x 16"
       103598, // Black / 15" x 16"
     ],
     tags: ['Tote Bag', 'Bags', 'Accessories', 'Canvas'],
     product_type: 'Accessories',
+  },
+  greetingCard: {
+    name: 'Greeting Cards (1, 10, 30, 50pcs)',
+    blueprint_id: 1094,
+    print_provider_id: 228, // Taylor
+    price: 599, // $5.99 for 1pc (base price)
+    scale: 0.66, // Scale to fill front panel height (1725/2625 = 0.66)
+    x: 0.75, // Position on right half (front of card when folded)
+    y: 0.5,
+    angle: 0, // No rotation
+    position: 'cover',
+    variants: [
+      81834, // 4.25" x 5.5" (Vertical) / Matte / 1 pc
+    ],
+    tags: ['Greeting Cards', 'Cards', 'Stationery', 'Paper Goods'],
+    product_type: 'Paper Goods',
   },
 };
 

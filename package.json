@@ -1,0 +1,9 @@
+{
+  "name": "slop-shop",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd the-slop-shop && pnpm dev"
+  }
+}
+
