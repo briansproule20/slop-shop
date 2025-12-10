@@ -122,10 +122,10 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     blueprint_id: 562,
     print_provider_id: 70, // Printed Mint
     price: 1299, // $12.99
-    scale: 0.54, // Print area is 3150x1691 (1.86:1 landscape), scale down to fit square image
+    scale: 1.0,
     x: 0.5,
-    y: 0.5,
-    angle: 0, // No rotation - image displays upright on bandana
+    y: 0.25,
+    angle: 0,
     position: 'front',
     variants: [
       101403, // 20" × 10" (small)
