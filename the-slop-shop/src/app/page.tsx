@@ -24,7 +24,6 @@ import ImageGenerator from '@/components/image-generator';
 
 import { EchoSignIn } from '@merit-systems/echo-next-sdk/client';
 import { EchoAccount } from '@/components/echo-account-next';
-import { Button } from '@/components/echo-button';
 import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
