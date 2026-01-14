@@ -22,7 +22,7 @@ import {
   usePromptInputAttachments,
 } from '@/components/ai-elements/prompt-input';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { fileToDataUrl } from '@/lib/image-utils';
@@ -31,6 +31,7 @@ import type {
   GeneratedImage,
   GenerateImageRequest,
   ImageResponse,
+  ImageSource,
   ModelConfig,
   ModelOption,
 } from '@/lib/types';
@@ -108,6 +109,28 @@ async function editImage(request: EditImageRequest): Promise<ImageResponse> {
   return response.json();
 }
 
+interface UploadResponse {
+  url: string;
+  filename: string;
+}
+
+async function uploadImageToBlob(file: File): Promise<UploadResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Upload failed: ${errorText}`);
+  }
+
+  return response.json();
+}
+
 /**
  * Main ImageGenerator component
  *
@@ -124,6 +147,7 @@ export default function ImageGenerator() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [imageToPublish, setImageToPublish] = useState<GeneratedImage | null>(null);
   const promptInputRef = useRef<HTMLFormElement>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   // Load images from IndexedDB on mount
   useEffect(() => {
@@ -192,6 +216,74 @@ export default function ImageGenerator() {
     } catch (error) {
       console.error('Failed to delete image:', error);
     }
+  }, []);
+
+  const handleUploadClick = useCallback(() => {
+    uploadInputRef.current?.click();
+  }, []);
+
+  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    console.log('Upload button triggered, processing files:', files.length);
+
+    // Process each file
+    for (const file of Array.from(files)) {
+      console.log('Processing file:', file.name, file.type, file.size);
+
+      if (!file.type.startsWith('image/')) {
+        console.log('Skipping non-image file:', file.name);
+        continue;
+      }
+
+      const imageId = `img_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+      // Create placeholder with loading state
+      const placeholderImage: GeneratedImage = {
+        id: imageId,
+        prompt: file.name,
+        timestamp: new Date(),
+        isEdit: false,
+        isUploaded: true,
+        source: 'uploaded' as ImageSource,
+        isLoading: true,
+      };
+
+      setImageHistory(prev => [placeholderImage, ...prev]);
+
+      try {
+        console.log('Uploading to Vercel Blob...');
+        // Upload to Vercel Blob
+        const { url } = await uploadImageToBlob(file);
+        console.log('Upload successful, blob URL:', url);
+
+        // Update with the blob URL
+        setImageHistory(prev =>
+          prev.map(img =>
+            img.id === imageId
+              ? { ...img, imageUrl: url, blobUrl: url, isLoading: false }
+              : img
+          )
+        );
+      } catch (error) {
+        console.error('Upload to blob failed:', error);
+        setImageHistory(prev =>
+          prev.map(img =>
+            img.id === imageId
+              ? {
+                  ...img,
+                  isLoading: false,
+                  error: error instanceof Error ? error.message : 'Upload failed',
+                }
+              : img
+          )
+        );
+      }
+    }
+
+    // Reset the input so the same file can be selected again
+    event.target.value = '';
   }, []);
 
   const handleProductSelect = useCallback((image: GeneratedImage, blueprint: PrintifyBlueprint) => {
@@ -449,6 +541,16 @@ export default function ImageGenerator() {
           <div className="flex items-center gap-2">
             <Button
               type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleUploadClick}
+              className="h-9 gap-1.5"
+            >
+              <Upload size={16} />
+              <span className="hidden sm:inline">Upload</span>
+            </Button>
+            <Button
+              type="button"
               variant="ghost"
               size="sm"
               onClick={clearForm}
@@ -472,6 +574,16 @@ export default function ImageGenerator() {
         image={imageToPublish}
         onClose={handleCloseProductSelector}
         onSelectProduct={handleProductSelect}
+      />
+
+      {/* Hidden file input for direct uploads to Vercel Blob */}
+      <input
+        ref={uploadInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={handleFileUpload}
       />
     </div>
   );

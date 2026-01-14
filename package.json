@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "cd the-slop-shop && pnpm dev"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.0.0"
   }
 }
-

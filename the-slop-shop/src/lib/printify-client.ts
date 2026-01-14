@@ -232,6 +232,8 @@ export async function publishProductToShopify(
 ): Promise<void> {
   const shopId = getShopId();
 
+  console.log('📢 Publishing product to Shopify:', { productId, shopId });
+
   const response = await fetch(
     `${PRINTIFY_API_BASE}/shops/${shopId}/products/${productId}/publish.json`,
     {
@@ -247,8 +249,17 @@ export async function publishProductToShopify(
     }
   );
 
+  const responseText = await response.text();
+  console.log('📢 Publish response:', response.status, responseText);
+
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to publish product: ${error}`);
+    console.error('❌ Failed to publish to Shopify:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: responseText,
+    });
+    throw new Error(`Failed to publish product (${response.status}): ${responseText}`);
   }
+
+  console.log('✅ Product published to Shopify successfully');
 }

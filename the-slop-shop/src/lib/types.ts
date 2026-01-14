@@ -20,6 +20,11 @@ export interface ModelConfig {
 }
 
 /**
+ * Image source type
+ */
+export type ImageSource = 'generated' | 'edited' | 'uploaded';
+
+/**
  * Complete generated image record with all metadata
  */
 export interface GeneratedImage {
@@ -27,6 +32,8 @@ export interface GeneratedImage {
   id: string;
   /** The actual image as data URL (undefined if still loading or error) */
   imageUrl?: string;
+  /** Cloud storage URL from Vercel Blob (for uploaded images) */
+  blobUrl?: string;
   /** User prompt that generated this image */
   prompt: string;
   /** AI model used for generation */
@@ -37,6 +44,10 @@ export interface GeneratedImage {
   attachments?: string[];
   /** Whether this was an edit operation (vs. new generation) */
   isEdit: boolean;
+  /** Whether this is a user-uploaded image */
+  isUploaded?: boolean;
+  /** How this image was created */
+  source?: ImageSource;
   /** Whether the image is still being generated */
   isLoading?: boolean;
   /** Error message if generation failed */

@@ -7,7 +7,7 @@ import {
   isImageActionable,
 } from '@/lib/image-actions';
 import type { GeneratedImage } from '@/lib/types';
-import { Copy, Trash2 } from 'lucide-react';
+import { Copy, Trash2, Upload } from 'lucide-react';
 import NextImage from 'next/image';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ImageDetailsDialog } from './image-details-dialog';
@@ -95,6 +95,11 @@ const ImageHistoryItem = React.memo(function ImageHistoryItem({
             className="object-cover"
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16.6vw"
           />
+          {image.isUploaded && (
+            <div className="absolute top-2 left-2 bg-blue-500 text-white rounded-full p-1.5 shadow-lg" title="Uploaded image">
+              <Upload size={12} />
+            </div>
+          )}
           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200">
             <Button
               size="sm"
@@ -159,7 +164,7 @@ export const ImageHistory = React.memo(function ImageHistory({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Generated Images</h3>
+      <h3 className="text-lg font-semibold text-gray-900">Your Images</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 transition-all duration-300 ease-out">
         {imageHistory.map(image => (
           <ImageHistoryItem
